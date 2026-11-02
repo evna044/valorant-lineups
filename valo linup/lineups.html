@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT - Mes Lineups</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <a class="brand" href="index.html">V<span>/</span> SELECT</a>
+
+    <div class="topbar-label">MES LINEUPS</div>
+
+</header>
+
+<main class="container">
+
+    <a href="index.html" class="back-link">← RETOUR À LA SÉLECTION</a>
+
+    <section class="intro">
+
+        <p class="eyebrow">VALORANT DATABASE</p>
+
+        <h1>MES <span>LINEUPS</span></h1>
+
+        <p class="subtitle">
+            Tes stratégies personnelles.
+        </p>
+
+    </section>
+
+    <!-- INFORMATIONS DE SELECTION -->
+
+    <section class="current-selection">
+
+        <div>
+            <p class="card-kicker">AGENT</p>
+            <h2 id="currentAgent">-</h2>
+        </div>
+
+        <div>
+            <p class="card-kicker">MAP</p>
+            <h2 id="currentMap">-</h2>
+        </div>
+
+    </section>
+
+    <!-- FORMULAIRE D'AJOUT -->
+
+    <section class="add-section">
+
+        <div class="section-heading">
+            <h2>AJOUTER UNE <span>LINEUP</span></h2>
+        </div>
+
+        <form id="lineupForm">
+
+            <label for="lineupTitle">NOM DE LA LINEUP</label>
+
+            <input
+                type="text"
+                id="lineupTitle"
+                placeholder="Ex : Flèche de reconnaissance A"
+                required
+            >
+
+            <label for="lineupDescription">DESCRIPTION</label>
+
+            <textarea
+                id="lineupDescription"
+                placeholder="Explique comment réaliser cette lineup..."
+            ></textarea>
+            <label for="lineupCategory">CATÉGORIE</label>
+            <select id="lineupCategory" required>
+                <option value="Attaque">Attaque</option>
+                <option value="Defense">Defense</option>
+                <option value="Post-plant">Post-plant</option>
+                <option value="Retake">Retake</option>
+                <option value="Autre">Autre</option>
+            </select>
+
+            <div class="upload-grid">
+
+                <div class="upload-box">
+
+                    <label for="lineupImage">
+                        <span>＋</span>
+                        AJOUTER UNE IMAGE
+                    </label>
+
+                    <input
+                        type="file"
+                        id="lineupImage"
+                        accept="image/*"
+                    >
+
+                    <p id="imageFileName">Aucune image choisie</p>
+
+                </div>
+
+                <div class="upload-box">
+
+                    <label for="lineupVideo">
+                        <span>＋</span>
+                        AJOUTER UNE VIDÉO
+                    </label>
+
+                    <input
+                        type="file"
+                        id="lineupVideo"
+                        accept="video/*"
+                    >
+
+                    <p id="videoFileName">Aucune vidéo choisie</p>
+
+                </div>
+
+            </div>
+
+            <button type="submit" class="validate-button">
+                ENREGISTRER LA LINEUP →
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- LISTE DES LINEUPS -->
+
+    <section class="lineups-section">
+
+        <div class="section-heading">
+            <h2>LINEUPS DISPONIBLES</h2>
+        </div>
+            <div id="categoryFilters" class="category-filters">
+                <button type="button" class="category-filter active" data-category="Toutes">
+                    TOUTES
+                </button>
+                <button type="button" class="category-filter" data-category="Attaque">
+                    ATTAQUE
+                </button>
+                <button type="button" class="category-filter" data-category="Defense">
+                    DEFENSE
+                </button>
+                <button type="button" class="category-filter" data-category="Post-plant">
+                    POST-PLANT
+                </button>
+                <button type="button" class="category-filter" data-category="Retake">
+                    RETAKE
+                </button>
+                <button type="button" class="category-filter" data-category="Autre">
+                    AUTRE
+                </button>
+            </div>
+        <div id="lineupsContainer" class="lineups-grid"></div>
+
+    </section>
+    <br>
+    <div class="export-import">
+    <button type="button" id="exportButton">
+        EXPORTER MES LINEUPS
+    </button>
+
+    <label for="importInput" class="import-button">
+        IMPORTER DES LINEUPS
+    </label>
+
+    <input
+        type="file"
+        id="importInput"
+        accept=".json,application/json"
+        hidden
+    >
+</div>
+
+</main>
+
+<footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
+
+<script src="lineups.js"></script>
+
+</body>
+</html>
