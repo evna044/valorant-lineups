@@ -52,10 +52,15 @@ async function init() {
         ]);
 
         maps = md.data
-    .filter(m =>
-        m.displayName &&
-        !/HURM|TeamDeathmatch/i.test(m.mapUrl || "")
-    )
+    .filter(m => {
+        const url = m.mapUrl || "";
+
+        return (
+            m.displayName &&
+            url.includes("/Game/Maps/") &&
+            !/HURM|TeamDeathmatch/i.test(url)
+        );
+    })
     .sort((a, b) =>
         a.displayName.localeCompare(b.displayName)
     );
