@@ -64,8 +64,7 @@ async function init() {
 
         agents = ad.data
             .filter(a =>
-                a.isPlayableCharacter &&
-                a.displayIcon
+                a.isPlayableCharacter 
             )
             .sort((a, b) =>
                 a.displayName.localeCompare(b.displayName)
