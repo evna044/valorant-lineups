@@ -31,21 +31,20 @@ const tdmMaps = [
 
 // CHARGEMENT DES DONNEES
 
+
 async function loadData() {
-
     try {
-
         const [agentsResponse, mapsResponse] = await Promise.all([
-    fetch("./data/agents.json"),
-    fetch("./data/maps.json")
-]);
+            fetch("./data/agents.json"),
+            fetch("./data/maps.json")
+        ]);
 
-        if (!agentResponse.ok || !mapResponse.ok) {
-            throw new Error("Erreur API");
+        if (!agentsResponse.ok || !mapsResponse.ok) {
+            throw new Error("Impossible de charger les fichiers JSON locaux.");
         }
 
-        const agentData = await agentResponse.json();
-        const mapData = await mapResponse.json();
+        const agentData = await agentsResponse.json();
+        const mapData = await mapsResponse.json();
 
         agents = agentData.data
             .filter(agent =>
@@ -58,7 +57,6 @@ async function loadData() {
 
         maps = mapData.data
             .filter(map => {
-
                 const name = map.displayName || "";
                 const url = map.mapUrl || "";
 
@@ -68,7 +66,6 @@ async function loadData() {
                     !tdmMaps.includes(name) &&
                     !/HURM|TeamDeathmatch/i.test(url)
                 );
-
             })
             .sort((a, b) =>
                 a.displayName.localeCompare(b.displayName)
@@ -81,14 +78,11 @@ async function loadData() {
             `${agents.length} AGENTS`;
 
     } catch (error) {
-
         agentGrid.textContent = "Impossible de charger les agents.";
         mapOptions.textContent = "Impossible de charger les maps.";
 
-        console.error(error);
-
+        console.error("Erreur de chargement :", error);
     }
-
 }
 
 // AFFICHER LES AGENTS
