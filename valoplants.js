@@ -565,17 +565,6 @@ form.addEventListener("submit", async e => {
         return alert("Accès administrateur requis.");
     }
 
-    const url = $("vpUrl").value.trim();
-
-    if (
-        url &&
-        !/^https:\/\/(www\.)?valoplant\.gg\//i.test(url)
-    ) {
-        return alert(
-            "Utilise un lien https://valoplant.gg/ valide."
-        );
-    }
-
     const btn = $("vpSave");
     btn.disabled = true;
 
