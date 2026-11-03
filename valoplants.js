@@ -910,13 +910,29 @@ $("vpCategoryFilters").onclick = e => {
 
 };
 
-// NOM DES IMAGES CHOISIES
+// APERÇU DES NOUVELLES IMAGES
 
 $("vpImages").onchange = () => {
 
-    $("vpFileNames").textContent = [
-        ...$("vpImages").files
-    ].map(x => x.name).join(", ") || "Aucune image choisie";
+    const root = $("vpFileNames");
+    root.innerHTML = "";
+
+    [...$("vpImages").files].forEach(file => {
+
+        const box = document.createElement("div");
+        box.className = "vp-new-image";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+
+        const name = document.createElement("span");
+        name.textContent = file.name;
+
+        box.append(img, name);
+        root.append(box);
+
+    });
 
 };
 
