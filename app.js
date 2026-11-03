@@ -64,17 +64,13 @@ async function loadData() {
     "Lotus",
     "Pearl",
     "Split",
-    "Sunset",
-    "Summit"
+    "Summit",
+    "Sunset"
 ];
 
-maps = mapData.data
-    .filter(map =>
-        standardMaps.includes(map.displayName)
-    )
-    .sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
-    );
+maps = md.data
+    .filter(map => standardMaps.includes(map.displayName))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         renderAgents();
         renderMaps();
