@@ -26,9 +26,7 @@ const login = $("vpLoginForm");
 // CHARGEMENT INITIAL
 
 async function init() {
-
     try {
-
         const [mr, ar] = await Promise.all([
             fetch("./data/maps.json"),
             fetch("./data/agents.json")
@@ -49,24 +47,21 @@ async function init() {
 
         agents = ad.data
             .filter(a => a.isPlayableCharacter)
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         renderMaps();
         renderAgents();
 
-        const { data } = await db.auth.getSession();
-        await checkAdmin(data.session);
+        // MODIFICATION ICI : On s'assure d'attendre la session de façon sécurisée
+        const { data: { session }, error: sessionError } = await db.auth.getSession();
+        if (sessionError) console.error(sessionError);
+        
+        await checkAdmin(session);
 
     } catch (e) {
-
         console.error(e);
-        $("vpMapGrid").textContent =
-            "Impossible de charger les maps.";
-
+        $("vpMapGrid").textContent = "Impossible de charger les maps.";
     }
-
 }
 
 // AFFICHER LES MAPS
