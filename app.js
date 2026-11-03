@@ -69,7 +69,7 @@ async function loadData() {
     "Sunset"
 ];
 
-maps = md.data
+maps = mapData.data
     .filter(map => standardMaps.includes(map.displayName))
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
