@@ -176,9 +176,13 @@ if (!selectionData) {
     });
 
     // Mise à jour lors d'un changement de session
-    supabaseClient.auth.onAuthStateChange(() => {
-        checkAdmin();
-    });
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+        setTimeout(() => {
+            checkAdmin();
+        }, 0);
+    }
+});
 
     // --------------------------------------------------
     // AFFICHAGE DES NOMS DES FICHIERS
