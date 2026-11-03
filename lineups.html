@@ -75,6 +75,7 @@
                 id="lineupDescription"
                 placeholder="Explique comment réaliser cette lineup..."
             ></textarea>
+
             <label for="lineupCategory">CATÉGORIE</label>
             <select id="lineupCategory" required>
                 <option value="Attaque">Attaque</option>
@@ -137,52 +138,54 @@
         <div class="section-heading">
             <h2>LINEUPS DISPONIBLES</h2>
         </div>
-            <div id="categoryFilters" class="category-filters">
-                <button type="button" class="category-filter active" data-category="Toutes">
-                    TOUTES
-                </button>
-                <button type="button" class="category-filter" data-category="Attaque">
-                    ATTAQUE
-                </button>
-                <button type="button" class="category-filter" data-category="Defense">
-                    DEFENSE
-                </button>
-                <button type="button" class="category-filter" data-category="Post-plant">
-                    POST-PLANT
-                </button>
-                <button type="button" class="category-filter" data-category="Retake">
-                    RETAKE
-                </button>
-                <button type="button" class="category-filter" data-category="Autre">
-                    AUTRE
-                </button>
-            </div>
+
+        <div id="categoryFilters" class="category-filters">
+            <button type="button" class="category-filter active" data-category="Toutes">
+                TOUTES
+            </button>
+            <button type="button" class="category-filter" data-category="Attaque">
+                ATTAQUE
+            </button>
+            <button type="button" class="category-filter" data-category="Defense">
+                DEFENSE
+            </button>
+            <button type="button" class="category-filter" data-category="Post-plant">
+                POST-PLANT
+            </button>
+            <button type="button" class="category-filter" data-category="Retake">
+                RETAKE
+            </button>
+            <button type="button" class="category-filter" data-category="Autre">
+                AUTRE
+            </button>
+        </div>
+
         <div id="lineupsContainer" class="lineups-grid"></div>
 
     </section>
-    <br>
+
     <div class="export-import">
-    <button type="button" id="exportButton">
-        EXPORTER MES LINEUPS
-    </button>
+        <button type="button" id="exportButton">
+            EXPORTER MES LINEUPS
+        </button>
 
-    <label for="importInput" class="import-button">
-        IMPORTER DES LINEUPS
-    </label>
+        <label for="importInput" class="import-button">
+            IMPORTER DES LINEUPS
+        </label>
 
-    <input
-        type="file"
-        id="importInput"
-        accept=".json,application/json"
-        hidden
-    >
-</div>
+        <input
+            type="file"
+            id="importInput"
+            accept=".json,application/json"
+            hidden
+        >
+    </div>
 
 </main>
 
 <footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0"></script>
 <script src="supabaseClient.js"></script>
 <script src="lineups.js"></script>
 </body>
