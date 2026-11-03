@@ -1,5 +1,6 @@
 :root {
     --red: #ff4655;
+    --red-dark: #d93645;
     --bg: #0e1118;
     --panel: #171c26;
     --muted: #9299a8;
@@ -23,7 +24,7 @@ body {
     );
 }
 
-button, input, textarea {
+button, input, textarea, select {
     font: inherit;
 }
 
@@ -96,8 +97,10 @@ h1 {
     letter-spacing: 1.5px;
 }
 
-.section-heading h2 span {
-    color: var(--red);
+/* PAGE D'ACCUEIL */
+
+.vp-home-entry {
+    margin: 0 0 38px;
 }
 
 /* MAP */
@@ -399,6 +402,27 @@ h1 {
     resize: vertical;
 }
 
+#lineupCategory {
+    width: 100%;
+    padding: 12px;
+    background: #171717;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+#lineupCategory option {
+    background: #171717;
+    color: #ffffff;
+}
+
+#lineupCategory:focus {
+    border-color: var(--red);
+}
+
 .upload-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -438,6 +462,33 @@ h1 {
     overflow-wrap: anywhere;
 }
 
+/* FILTRES DE CATÉGORIES */
+
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.category-filter {
+    padding: 10px 18px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #151515;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.category-filter:hover,
+.category-filter.active {
+    background: var(--red);
+    border-color: var(--red);
+    color: white;
+}
+
 /* AFFICHAGE DES LINEUPS */
 
 .lineups-section {
@@ -446,8 +497,8 @@ h1 {
 
 .lineups-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
 }
 
 .lineup-card {
@@ -455,6 +506,7 @@ h1 {
     border: 1px solid #ffffff20;
     padding: 18px;
     min-width: 0;
+    overflow: hidden;
 }
 
 .lineup-card h3 {
@@ -462,41 +514,167 @@ h1 {
     margin: 0 0 12px;
 }
 
-.lineup-description {
+.lineup-category {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 5px 9px;
+    background: #ff465522;
+    color: #ff7883;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.lineup-card p {
     color: #aeb4c0;
     font-size: 13px;
     line-height: 1.6;
     white-space: pre-wrap;
 }
 
+/* Images et vidéos */
 .lineup-media {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 15px;
-}
-
-.lineup-media img,
-.lineup-media video {
+    display: block;
     width: 100%;
-    max-height: 400px;
+    max-width: 100%;
+    height: auto;
+    max-height: 350px;
     object-fit: contain;
     background: #080b11;
+    border-radius: 8px;
+    margin-top: 15px;
+    cursor: pointer;
 }
 
+/* BOUTONS MODIFIER / SUPPRIMER */
+
+.edit-button,
 .delete-button {
-    margin-top: 18px;
-    padding: 10px 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 36px;
+    padding: 0;
+    margin: 10px 5px 0 0;
+    background: var(--red);
     color: white;
-    background: #7b2630;
-    border: none;
-    cursor: pointer;
+    border: 1px solid var(--red);
+    border-radius: 4px;
     font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+/* ZOOM IMAGE */
+
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.92);
+    cursor: zoom-out;
+}
+
+.image-viewer img {
+    max-width: 95%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 2px solid var(--red);
+    box-shadow: 0 0 30px rgba(255, 70, 85, 0.35);
+}
+
+/* BOUTONS EXPORT / IMPORT */
+
+.export-import {
+    margin-top: 30px;
+}
+
+.export-import button,
+.export-import .import-button {
+    display: inline-block;
+    background: var(--red);
+    color: #ffffff;
+    border: 1px solid var(--red);
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.export-import button:hover,
+.export-import .import-button:hover {
+    background: #d83242;
+    border-color: #d83242;
+}
+
+.export-import [hidden] {
+    display: none !important;
+}
+
+/* ESPACE ADMINISTRATEUR */
+
+.admin-login {
+    max-width: 450px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.admin-login h2 {
+    color: var(--red);
+    font-size: 20px;
+}
+
+.admin-login input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    background: #292929;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+.admin-login button {
+    padding: 10px 18px;
+    margin-top: 10px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     font-weight: bold;
 }
 
-.delete-button:hover {
-    background: var(--red);
+.admin-login button:hover {
+    background: var(--red-dark);
+}
+
+.admin-login [hidden],
+#lineupForm[hidden] {
+    display: none !important;
 }
 
 /* FOOTER */
@@ -536,276 +714,4 @@ footer {
         flex-wrap: wrap;
     }
 
-}
-.lineup-image {
-    cursor: zoom-in;
-}
-
-/* Fond de l'image agrandie */
-.image-viewer {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.92);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 30px;
-    cursor: zoom-out;
-}
-
-/* Image agrandie */
-.image-viewer img {
-    max-width: 95%;
-    max-height: 95%;
-    object-fit: contain;
-
-    border: 2px solid #ff4655;
-    box-shadow: 0 0 30px rgba(255, 70, 85, 0.35);
-}
-
-/* =====================================
-   BOUTONS EXPORT / IMPORT
-===================================== */
-
-.export-import button,
-.export-import .import-button {
-    background: #ff4655 !important;
-    color: #ffffff !important;
-    border: 1px solid #ff4655 !important;
-
-    padding: 12px 20px;
-    border-radius: 5px;
-
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: bold;
-
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.export-import button:hover,
-.export-import .import-button:hover {
-    background: #d83242 !important;
-    border-color: #d83242 !important;
-    color: #ffffff !important;
-}
-
-/* =====================================
-   MENU CATÉGORIE
-===================================== */
-
-#lineupCategory {
-    width: 100%;
-    padding: 12px;
-
-    background: #171717 !important;
-    color: #ffffff !important;
-
-    border: 1px solid #444 !important;
-    border-radius: 5px;
-
-    font-family: inherit;
-    font-size: 14px;
-
-    outline: none;
-    cursor: pointer;
-}
-
-#lineupCategory option {
-    background: #171717;
-    color: #ffffff;
-}
-
-#lineupCategory:focus {
-    border-color: #ff4655 !important;
-}
-.category-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 20px 0;
-}
-
-.category-filter {
-    padding: 10px 18px;
-    border: 1px solid #333;
-    background: #151515;
-    color: #aaa;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.category-filter:hover {
-    border-color: #ff4655;
-    color: white;
-}
-
-.category-filter.active {
-    background: #ff4655;
-    border-color: #ff4655;
-    color: white;
-}
-/* Cartes de lineups */
-.lineups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-}
-
-.lineup-card {
-    min-width: 0;
-    overflow: hidden;
-}
-
-/* Images et vidéos */
-.lineup-media {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    max-height: 350px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-top: 15px;
-    cursor: pointer;
-}
-
-/* Filtres de catégories */
-.category-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 20px 0;
-}
-
-.category-filter {
-    padding: 10px 18px;
-    border: 1px solid #444;
-    border-radius: 4px;
-    background: #151515;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.category-filter:hover,
-.category-filter.active {
-    background: #ff4655;
-    border-color: #ff4655;
-    color: white;
-}
-.image-viewer {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.92);
-    cursor: zoom-out;
-}
-
-.image-viewer img {
-    max-width: 95%;
-    max-height: 90vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 8px;
-}
-.edit-button {
-    background: #222;
-    color: white;
-    border: 1px solid #ff4655;
-    padding: 10px 18px;
-    margin: 10px 8px 0 0;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
-}
-
-.edit-button:hover {
-    background: #ff4655;
-    color: white;
-}
-.edit-button,
-.delete-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 110px;
-    height: 36px;
-    padding: 0;
-    margin: 10px 5px 0 0;
-    box-sizing: border-box;
-
-    background: #ff4655 !important;
-    color: white !important;
-    border: 1px solid #ff4655 !important;
-    border-radius: 4px;
-
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.edit-button:hover,
-.delete-button:hover {
-    background: #d93645 !important;
-    border-color: #d93645 !important;
-}
-
-.admin-login {
-    max-width: 450px;
-    margin: 30px auto;
-    padding: 20px;
-    background: #1b1b1b;
-    border: 1px solid #333;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.admin-login h2 {
-    color: #ff4655;
-    font-size: 20px;
-}
-
-.admin-login input {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    margin: 12px 0;
-    background: #292929;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 5px;
-}
-
-.admin-login button {
-    padding: 10px 18px;
-    margin-top: 10px;
-    background: #ff4655;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.admin-login button:hover {
-    background: #d93645;
-}
-
-.admin-login [hidden],
-#lineupForm[hidden] {
-    display: none !important;
 }
