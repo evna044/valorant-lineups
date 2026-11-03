@@ -1,7 +1,6 @@
 (() => {
 
 const db = window.supabaseClient;
-const API = "https://valorant-api.com/v1";
 const $ = id => document.getElementById(id);
 
 if (!db) {
@@ -18,18 +17,11 @@ let admin = false;
 let editing = null;
 let oldImages = [];
 let filter = "Toutes";
+let checkedLineups = new Set();
 
 const form = $("vpForm");
 const editor = $("vpEditor");
 const login = $("vpLoginForm");
-
-const tdm = [
-    "District",
-    "Kasbah",
-    "Piazza",
-    "Drift",
-    "Glitch"
-];
 
 // CHARGEMENT INITIAL
 
@@ -43,7 +35,7 @@ async function init() {
         ]);
 
         if (!mr.ok || !ar.ok) {
-            throw Error("API VALORANT indisponible");
+            throw Error("Fichiers JSON indisponibles");
         }
 
         const [md, ad] = await Promise.all([
@@ -51,30 +43,12 @@ async function init() {
             ar.json()
         ]);
 
-        const standardMaps = [
-    "Abyss",
-    "Ascent",
-    "Bind",
-    "Breeze",
-    "Corrode",
-    "Fracture",
-    "Haven",
-    "Icebox",
-    "Lotus",
-    "Pearl",
-    "Split",
-    "Summit",
-    "Sunset"
-];
-
-maps = md.data
-    .filter(map => standardMaps.includes(map.displayName))
-    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+        maps = md.data
+            .filter(m => STANDARD_MAPS.includes(m.displayName))
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         agents = ad.data
-            .filter(a =>
-                a.isPlayableCharacter 
-            )
+            .filter(a => a.isPlayableCharacter)
             .sort((a, b) =>
                 a.displayName.localeCompare(b.displayName)
             );
@@ -106,6 +80,8 @@ function renderMaps() {
 
         const b = document.createElement("button");
 
+        b.type = "button";
+
         b.className =
             "vp-map-card" +
             (map?.uuid === m.uuid ? " active" : "");
@@ -130,6 +106,9 @@ function renderMaps() {
 // SÉLECTIONNER UNE MAP
 
 async function selectMap(m) {
+
+    // Annule toute édition en cours (évite de déplacer une stratégie sur une autre map)
+    resetForm();
 
     map = m;
     filter = "Toutes";
@@ -286,6 +265,7 @@ function renderStrategies() {
         p.textContent = s.description || "Aucune description.";
 
         const view = document.createElement("button");
+        view.type = "button";
         view.className = "vp-detail-button";
         view.textContent = "VOIR LA STRATÉGIE";
         view.onclick = () => detail(s);
@@ -295,11 +275,13 @@ function renderStrategies() {
         if (admin) {
 
             const edit = document.createElement("button");
+            edit.type = "button";
             edit.className = "edit-button";
             edit.textContent = "MODIFIER";
             edit.onclick = () => editStrategy(s);
 
             const del = document.createElement("button");
+            del.type = "button";
             del.className = "delete-button";
             del.textContent = "SUPPRIMER";
             del.onclick = () => deleteStrategy(s);
@@ -332,10 +314,12 @@ function renderAgents(selected = []) {
         cb.value = a.displayName;
         cb.checked = selected.includes(a.displayName);
 
-        cb.onchange = renderLineupsPicker;
+        // IMPORTANT : ne pas passer l'événement comme paramètre
+        cb.onchange = () => renderLineupsPicker();
 
         const im = document.createElement("img");
         im.src = a.displayIcon;
+        im.alt = a.displayName;
 
         const t = document.createElement("span");
         t.textContent = a.displayName;
@@ -360,14 +344,16 @@ function selectedAgents() {
 }
 
 // FILTRER LES LINEUPS
+// Les lineups cochées sont mémorisées dans un Set :
+// elles ne sont plus perdues quand le filtre par agent change.
 
 function renderLineupsPicker(selected = null) {
 
     const root = $("vpLineups");
 
-    const keep = selected || [
-        ...root.querySelectorAll("input:checked")
-    ].map(x => x.value);
+    if (Array.isArray(selected)) {
+        checkedLineups = new Set(selected);
+    }
 
     const names = selectedAgents();
 
@@ -392,7 +378,12 @@ function renderLineupsPicker(selected = null) {
         cb.type = "checkbox";
         cb.name = "vpLineup";
         cb.value = x.id;
-        cb.checked = keep.includes(x.id);
+        cb.checked = checkedLineups.has(x.id);
+
+        cb.onchange = () => {
+            if (cb.checked) checkedLineups.add(x.id);
+            else checkedLineups.delete(x.id);
+        };
 
         const t = document.createElement("span");
         t.textContent = x.agent + " — " + x.title;
@@ -422,6 +413,7 @@ function editStrategy(s) {
     $("vpDescription").value = s.description || "";
     $("vpCategory").value = s.category;
     $("vpImages").value = "";
+    $("vpFileNames").innerHTML = "";
 
     renderAgents(s.agents || []);
     renderOldImages();
@@ -491,7 +483,7 @@ function resetForm() {
 
     $("vpCancel").hidden = true;
     $("vpOldImages").innerHTML = "";
-    $("vpFileNames").textContent = "";
+    $("vpFileNames").innerHTML = "";
 
     renderAgents();
     renderLineupsPicker([]);
@@ -583,9 +575,11 @@ form.addEventListener("submit", async e => {
 
             agents: selectedAgents(),
 
-           valoplant_url: "https://valoplant.gg/"
+            valoplant_url: "https://valoplant.gg/"
 
         };
+
+        const wasEditing = Boolean(editing);
 
         let id = editing;
 
@@ -657,26 +651,28 @@ form.addEventListener("submit", async e => {
         }
 
         // Mettre à jour les lineups associées
+        // (on ajoute d'abord, on retire ensuite : pas de perte en cas d'erreur)
 
-        const { error: delError } = await db
+        const ids = [...checkedLineups];
+
+        const { data: existing, error: selError } = await db
             .from("valoplant_lineups")
-            .delete()
+            .select("lineup_id")
             .eq("valoplant_id", id);
 
-        if (delError) throw delError;
+        if (selError) throw selError;
 
-        const ids = [
-            ...document.querySelectorAll(
-                'input[name="vpLineup"]:checked'
-            )
-        ].map(x => x.value);
+        const old = (existing || []).map(x => x.lineup_id);
 
-        if (ids.length) {
+        const toAdd = ids.filter(x => !old.includes(x));
+        const toRemove = old.filter(x => !ids.includes(x));
+
+        if (toAdd.length) {
 
             const { error } = await db
                 .from("valoplant_lineups")
                 .insert(
-                    ids.map(lineup_id => ({
+                    toAdd.map(lineup_id => ({
                         valoplant_id: id,
                         lineup_id
                     }))
@@ -686,8 +682,20 @@ form.addEventListener("submit", async e => {
 
         }
 
+        if (toRemove.length) {
+
+            const { error } = await db
+                .from("valoplant_lineups")
+                .delete()
+                .eq("valoplant_id", id)
+                .in("lineup_id", toRemove);
+
+            if (error) throw error;
+
+        }
+
         alert(
-            editing
+            wasEditing
                 ? "Stratégie modifiée."
                 : "Stratégie créée."
         );
@@ -709,7 +717,7 @@ form.addEventListener("submit", async e => {
 
 });
 
-// SUPPRIMER UNE STRATÉGIE
+// SUPPRIMER UNE STRATÉGIE (base d'abord, fichiers ensuite)
 
 async function deleteStrategy(s) {
 
@@ -719,16 +727,16 @@ async function deleteStrategy(s) {
 
     try {
 
-        for (const x of s.images) {
-            await removeMedia(x.image_url);
-        }
-
         const { error } = await db
             .from("valoplants")
             .delete()
             .eq("id", s.id);
 
         if (error) throw error;
+
+        for (const x of s.images) {
+            await removeMedia(x.image_url);
+        }
 
         await loadStrategies();
 
@@ -751,6 +759,7 @@ function detail(s) {
     panel.className = "vp-modal-inner";
 
     const close = document.createElement("button");
+    close.type = "button";
     close.className = "vp-close";
     close.textContent = "FERMER ✕";
     close.onclick = () => overlay.remove();
@@ -842,15 +851,15 @@ function detail(s) {
 
     panel.append(close, h, tag, desc, comp, imgs, lh, lg);
 
-    const a = document.createElement("a");
+    const link = document.createElement("a");
 
-a.className = "vp-external";
-a.href = "https://valoplant.gg/";
-a.target = "_blank";
-a.rel = "noopener noreferrer";
-a.textContent = "OUVRIR SUR VALOPLANT.GG ↗";
+    link.className = "vp-external";
+    link.href = "https://valoplant.gg/";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "OUVRIR SUR VALOPLANT.GG ↗";
 
-panel.append(a);
+    panel.append(link);
 
     overlay.append(panel);
 
@@ -912,8 +921,10 @@ $("vpImages").onchange = () => {
         box.className = "vp-new-image";
 
         const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
+        const objectUrl = URL.createObjectURL(file);
+        img.src = objectUrl;
         img.alt = file.name;
+        img.onload = () => URL.revokeObjectURL(objectUrl);
 
         const name = document.createElement("span");
         name.textContent = file.name;
