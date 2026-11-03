@@ -71,7 +71,7 @@
             <form id="vpForm">
 
                 <label for="vpTitle">TITRE</label>
-                <input id="vpTitle" required maxlength="120" placeholder="Ex : Exécution rapide sur A">
+                <input id="vpTitle" type="text" required maxlength="120" placeholder="Ex : Exécution rapide sur A">
 
                 <label for="vpDescription">DESCRIPTION</label>
                 <textarea id="vpDescription" rows="4"></textarea>
@@ -85,11 +85,11 @@
                 </select>
 
                 <p class="vp-help">
-    Le bouton ValoPlant renverra automatiquement vers
-    <a href="https://valoplant.gg/" target="_blank" rel="noopener noreferrer">
-        ValoPlant.gg
-    </a>.
-</p>
+                    Le bouton ValoPlant renverra automatiquement vers
+                    <a href="https://valoplant.gg/" target="_blank" rel="noopener noreferrer">
+                        ValoPlant.gg
+                    </a>.
+                </p>
 
                 <label>COMPOSITION D'AGENTS (FACULTATIF)</label>
                 <div id="vpAgents" class="vp-picker">Chargement...</div>
@@ -122,8 +122,9 @@
 
 <footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0"></script>
 <script src="supabaseClient.js"></script>
+<script src="maps-config.js"></script>
 <script src="valoplants.js"></script>
 
 </body>
