@@ -11,24 +11,19 @@ const mapTrigger = document.getElementById("mapTrigger");
 const mapMenu = document.getElementById("mapMenu");
 const validateButton = document.getElementById("validateButton");
 
+// Accepte les rôles en anglais ET en français (selon la langue du JSON)
 const roleNames = {
     Duelist: "Duelliste",
+    Duelliste: "Duelliste",
     Initiator: "Initiateur",
+    Initiateur: "Initiateur",
     Controller: "Contrôleur",
-    Sentinel: "Sentinelle"
+    Contrôleur: "Contrôleur",
+    Sentinel: "Sentinelle",
+    Sentinelle: "Sentinelle"
 };
 
-// MAPS TDM À EXCLURE
-const tdmMaps = [
-    "District",
-    "Kasbah",
-    "Piazza",
-    "Drift",
-    "Glitch"
-];
-
 // CHARGEMENT DES DONNEES
-
 
 async function loadData() {
     try {
@@ -44,34 +39,18 @@ async function loadData() {
         const agentData = await agentsResponse.json();
         const mapData = await mapsResponse.json();
 
-       agents = agentData.data
-    .filter(agent =>
-        agent.isPlayableCharacter === true &&
-        agent.displayIcon
-    )
-    .sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
-    );
+        agents = agentData.data
+            .filter(agent =>
+                agent.isPlayableCharacter === true &&
+                agent.displayIcon
+            )
+            .sort((a, b) =>
+                a.displayName.localeCompare(b.displayName)
+            );
 
-           const standardMaps = [
-    "Abyss",
-    "Ascent",
-    "Bind",
-    "Breeze",
-    "Corrode",
-    "Fracture",
-    "Haven",
-    "Icebox",
-    "Lotus",
-    "Pearl",
-    "Split",
-    "Summit",
-    "Sunset"
-];
-
-maps = mapData.data
-    .filter(map => standardMaps.includes(map.displayName))
-    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+        maps = mapData.data
+            .filter(map => STANDARD_MAPS.includes(map.displayName))
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         renderAgents();
         renderMaps();
