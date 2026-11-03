@@ -47,7 +47,7 @@ async function loadData() {
        agents = agentData.data
     .filter(agent =>
         agent.isPlayableCharacter === true &&
-        agent.isAvailableForPlay === true
+        agent.displayIcon
     )
     .sort((a, b) =>
         a.displayName.localeCompare(b.displayName)
