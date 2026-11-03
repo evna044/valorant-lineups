@@ -421,7 +421,6 @@ function editStrategy(s) {
     $("vpTitle").value = s.title;
     $("vpDescription").value = s.description || "";
     $("vpCategory").value = s.category;
-    $("vpUrl").value = s.valoplant_url || "";
     $("vpImages").value = "";
 
     renderAgents(s.agents || []);
@@ -595,7 +594,7 @@ form.addEventListener("submit", async e => {
 
             agents: selectedAgents(),
 
-            valoplant_url: url
+           valoplant_url: "https://valoplant.gg/"
 
         };
 
@@ -854,19 +853,15 @@ function detail(s) {
 
     panel.append(close, h, tag, desc, comp, imgs, lh, lg);
 
-    if (s.valoplant_url) {
+    const a = document.createElement("a");
 
-        const a = document.createElement("a");
+a.className = "vp-external";
+a.href = "https://valoplant.gg/";
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+a.textContent = "OUVRIR SUR VALOPLANT.GG ↗";
 
-        a.className = "vp-external";
-        a.href = s.valoplant_url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = "OUVRIR SUR VALOPLANT.GG ↗";
-
-        panel.append(a);
-
-    }
+panel.append(a);
 
     overlay.append(panel);
 
