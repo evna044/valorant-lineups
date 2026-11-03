@@ -80,56 +80,46 @@ if (!selectionData) {
     // VÉRIFICATION DES DROITS ADMINISTRATEUR
     // --------------------------------------------------
 
-    async function checkAdmin() {
-        const { data: sessionData, error: sessionError } =
-            await supabaseClient.auth.getSession();
+    async function checkAdmin(session = null) {
+    let user = session?.user || null;
 
-        if (sessionError) {
-            console.error(sessionError);
-        }
+    isAdmin = false;
 
-        const user = sessionData.session?.user;
+    if (user) {
+        const { data, error } = await supabaseClient.rpc("is_admin");
 
-        isAdmin = false;
-
-        if (user) {
-            const { data, error } = await supabaseClient.rpc("is_admin");
-
-            if (error) {
-                console.error("Erreur de vérification des droits :", error);
-            } else {
-                isAdmin = data === true;
-            }
-        }
-
-        loginForm.hidden = !!user;
-        logoutButton.hidden = !user;
-
-        if (!user) {
-            authStatus.textContent =
-                "Connecte-toi pour gérer les lineups.";
-        } else if (isAdmin) {
-            authStatus.textContent =
-                "Connecté en tant qu'administrateur.";
+        if (error) {
+            console.error("Erreur de vérification admin :", error);
         } else {
-            authStatus.textContent =
-                "Compte connecté : accès administrateur non autorisé.";
+            isAdmin = data === true;
         }
-
-        form.hidden = !isAdmin;
-
-        if (importInput) {
-            const importContainer = importInput.closest("label") ||
-                importInput.parentElement;
-
-            if (importContainer) {
-                importContainer.hidden = !isAdmin;
-            }
-        }
-
-        renderLineups();
     }
 
+    loginForm.hidden = !!user;
+    logoutButton.hidden = !user;
+
+    if (!user) {
+        authStatus.textContent = "Connecte-toi pour gérer les lineups.";
+    } else if (isAdmin) {
+        authStatus.textContent = "Connecté en tant qu'administrateur.";
+    } else {
+        authStatus.textContent =
+            "Compte connecté : accès administrateur non autorisé.";
+    }
+
+    form.hidden = !isAdmin;
+
+    if (importInput) {
+        const importContainer =
+            importInput.closest("label") || importInput.parentElement;
+
+        if (importContainer) {
+            importContainer.hidden = !isAdmin;
+        }
+    }
+
+    renderLineups();
+}
     // Connexion avec e-mail et mot de passe
     loginForm.addEventListener("submit", async event => {
         event.preventDefault();
@@ -177,10 +167,10 @@ if (!selectionData) {
 
     // Mise à jour lors d'un changement de session
 supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
-        setTimeout(() => {
-            checkAdmin();
-        }, 0);
+    if (event === "INITIAL_SESSION" ||
+        event === "SIGNED_IN" ||
+        event === "SIGNED_OUT") {
+        setTimeout(() => checkAdmin(session), 0);
     }
 });
 
@@ -752,5 +742,12 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     // DÉMARRAGE
     // --------------------------------------------------
 
-    checkAdmin();
+    supabaseClient.auth.getSession().then(({ data, error }) => {
+    if (error) {
+        console.error("Erreur de session :", error);
+        return;
+    }
+
+    checkAdmin(data.session);
+});
 }
