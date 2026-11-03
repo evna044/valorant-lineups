@@ -51,16 +51,26 @@ async function init() {
             ar.json()
         ]);
 
-        maps = md.data
-    .filter(m => {
-        const url = m.mapUrl || "";
+        const standardMaps = [
+    "Abyss",
+    "Ascent",
+    "Bind",
+    "Breeze",
+    "Corrode",
+    "Fracture",
+    "Haven",
+    "Icebox",
+    "Lotus",
+    "Pearl",
+    "Split",
+    "Sunset",
+    "Summit"
+];
 
-        return (
-            m.displayName &&
-            url.includes("/Game/Maps/") &&
-            !/HURM|TeamDeathmatch/i.test(url)
-        );
-    })
+maps = md.data
+    .filter(m =>
+        standardMaps.includes(m.displayName)
+    )
     .sort((a, b) =>
         a.displayName.localeCompare(b.displayName)
     );
