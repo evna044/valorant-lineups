@@ -63,17 +63,13 @@ async function init() {
     "Lotus",
     "Pearl",
     "Split",
-    "Sunset",
-    "Summit"
+    "Summit",
+    "Sunset"
 ];
 
 maps = md.data
-    .filter(m =>
-        standardMaps.includes(m.displayName)
-    )
-    .sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
-    );
+    .filter(map => standardMaps.includes(map.displayName))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         agents = ad.data
             .filter(a =>
