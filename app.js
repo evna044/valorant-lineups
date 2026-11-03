@@ -52,19 +52,14 @@ async function loadData() {
                 a.displayName.localeCompare(b.displayName)
             );
 
-        maps = mapData.data
-    .filter(map => {
-        const name = map.displayName || "";
-        const url = map.mapUrl || "";
-
-        return (
-            !tdmMaps.includes(name) &&
-            !/HURM|TeamDeathmatch/i.test(url)
-        );
-    })
-    .sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
-    );
+           maps = mapData.data
+            .filter(map =>
+                map.displayName &&
+                !/HURM|TeamDeathmatch/i.test(map.mapUrl || "")
+            )
+            .sort((a, b) =>
+                a.displayName.localeCompare(b.displayName)
+            );
 
         renderAgents();
         renderMaps();
