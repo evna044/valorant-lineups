@@ -35,10 +35,10 @@ async function loadData() {
 
     try {
 
-        const [agentResponse, mapResponse] = await Promise.all([
-            fetch(`${API}/agents?isPlayableCharacter=true`),
-            fetch(`${API}/maps`)
-        ]);
+        const [agentsResponse, mapsResponse] = await Promise.all([
+    fetch("./data/agents.json"),
+    fetch("./data/maps.json")
+]);
 
         if (!agentResponse.ok || !mapResponse.ok) {
             throw new Error("Erreur API");
