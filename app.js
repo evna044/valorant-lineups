@@ -53,20 +53,18 @@ async function loadData() {
             );
 
         maps = mapData.data
-            .filter(map => {
-                const name = map.displayName || "";
-                const url = map.mapUrl || "";
+    .filter(map => {
+        const name = map.displayName || "";
+        const url = map.mapUrl || "";
 
-                return (
-                    map.displayIcon &&
-                    map.splash &&
-                    !tdmMaps.includes(name) &&
-                    !/HURM|TeamDeathmatch/i.test(url)
-                );
-            })
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+        return (
+            !tdmMaps.includes(name) &&
+            !/HURM|TeamDeathmatch/i.test(url)
+        );
+    })
+    .sort((a, b) =>
+        a.displayName.localeCompare(b.displayName)
+    );
 
         renderAgents();
         renderMaps();
