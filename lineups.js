@@ -143,11 +143,11 @@ if (!selectionData) {
         await checkAdmin();
 
         if (!isAdmin) {
-            await supabaseClient.auth.signOut();
-            await checkAdmin();
+    authStatus.textContent =
+        "Connexion réussie, mais vérification des droits impossible. Réessaie dans un instant.";
 
-            alert("Ce compte ne possède pas les droits administrateur.");
-        }
+    return;
+}
     });
 
     // Déconnexion
