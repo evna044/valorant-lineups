@@ -38,8 +38,8 @@ async function init() {
     try {
 
         const [mr, ar] = await Promise.all([
-            fetch(API + "/maps"),
-            fetch(API + "/agents?isPlayableCharacter=true")
+            fetch("./data/maps.json"),
+            fetch("./data/agents.json")
         ]);
 
         if (!mr.ok || !ar.ok) {
