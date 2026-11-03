@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT - Valoplants</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="valoplants.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a class="brand" href="index.html">V<span>/</span> SELECT</a>
+    <div class="topbar-label">VALOPLANTS</div>
+</header>
+
+<main class="container vp-container">
+
+    <a href="index.html" class="back-link">← RETOUR À L'ACCUEIL</a>
+
+    <section class="intro">
+        <p class="eyebrow">VALORANT DATABASE</p>
+        <h1>MES <span>VALOPLANTS</span></h1>
+        <p class="subtitle">Retrouve et partage les stratégies de chaque map.</p>
+    </section>
+
+    <section>
+        <div class="section-heading">
+            <h2>01 <span>/</span> CHOISIR UNE MAP</h2>
+        </div>
+        <div id="vpMapGrid" class="vp-map-grid">Chargement des maps...</div>
+    </section>
+
+    <section id="vpResultsSection" hidden>
+        <div class="section-heading">
+            <h2 id="vpSelectedMapTitle">STRATÉGIES</h2>
+            <span id="vpStrategyCount" class="hint"></span>
+        </div>
+
+        <div id="vpCategoryFilters" class="category-filters">
+            <button class="category-filter active" data-category="Toutes">TOUTES</button>
+            <button class="category-filter" data-category="ATTAQUE">ATTAQUE</button>
+            <button class="category-filter" data-category="DÉFENSE">DÉFENSE</button>
+            <button class="category-filter" data-category="RETAKE">RETAKE</button>
+            <button class="category-filter" data-category="PUSH DÉFENSE">PUSH DÉFENSE</button>
+        </div>
+
+        <div id="vpStrategyGrid" class="vp-strategy-grid"></div>
+    </section>
+
+    <section id="vpAdminPanel" class="add-section" hidden>
+        <div class="section-heading">
+            <h2>ESPACE <span>ADMINISTRATEUR</span></h2>
+        </div>
+
+        <p id="vpAuthStatus">Vérification...</p>
+
+        <form id="vpLoginForm" class="vp-login">
+            <input id="vpEmail" type="email" placeholder="Adresse e-mail" required>
+            <input id="vpPassword" type="password" placeholder="Mot de passe" required>
+            <button class="validate-button">SE CONNECTER</button>
+        </form>
+
+        <button id="vpLogout" class="edit-button" hidden type="button">
+            SE DÉCONNECTER
+        </button>
+
+        <div id="vpEditor" hidden>
+            <h2 id="vpFormHeading">CRÉER UNE STRATÉGIE</h2>
+
+            <form id="vpForm">
+
+                <label for="vpTitle">TITRE</label>
+                <input id="vpTitle" required maxlength="120" placeholder="Ex : Exécution rapide sur A">
+
+                <label for="vpDescription">DESCRIPTION</label>
+                <textarea id="vpDescription" rows="4"></textarea>
+
+                <label for="vpCategory">CATÉGORIE</label>
+                <select id="vpCategory">
+                    <option>ATTAQUE</option>
+                    <option>DÉFENSE</option>
+                    <option>RETAKE</option>
+                    <option>PUSH DÉFENSE</option>
+                </select>
+
+                <label for="vpUrl">LIEN VALOPLANT (FACULTATIF)</label>
+                <input id="vpUrl" type="url" placeholder="https://valoplant.gg/...">
+
+                <label>COMPOSITION D'AGENTS (FACULTATIF)</label>
+                <div id="vpAgents" class="vp-picker">Chargement...</div>
+
+                <label for="vpImages">IMAGES (PLUSIEURS POSSIBLES)</label>
+                <input id="vpImages" type="file" accept="image/*" multiple>
+                <p id="vpFileNames"></p>
+                <div id="vpOldImages" class="vp-old-images"></div>
+
+                <label>LINEUPS À ASSOCIER (FACULTATIF)</label>
+                <p class="vp-help">
+                    Choisis des agents pour filtrer les lineups.
+                    Sans agent sélectionné, toutes les lineups de cette map sont proposées.
+                </p>
+                <div id="vpLineups" class="vp-picker"></div>
+
+                <button id="vpSave" class="validate-button">
+                    ENREGISTRER LA STRATÉGIE →
+                </button>
+
+                <button id="vpCancel" class="edit-button" type="button" hidden>
+                    ANNULER
+                </button>
+
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabaseClient.js"></script>
+<script src="valoplants.js"></script>
+
+</body>
+</html>
