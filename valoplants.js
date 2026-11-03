@@ -52,15 +52,18 @@ async function init() {
         ]);
 
         maps = md.data
-            .filter(m =>
-                m.displayIcon &&
-                m.splash &&
-                !tdm.includes(m.displayName) &&
-                !/HURM|TeamDeathmatch/i.test(m.mapUrl || "")
-            )
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+    .filter(m => {
+        const name = m.displayName || "";
+        const url = m.mapUrl || "";
+
+        return (
+            !tdm.includes(name) &&
+            !/HURM|TeamDeathmatch/i.test(url)
+        );
+    })
+    .sort((a, b) =>
+        a.displayName.localeCompare(b.displayName)
+    );
 
         agents = ad.data
             .filter(a =>
