@@ -53,13 +53,18 @@ async function loadData() {
             );
 
            maps = mapData.data
-            .filter(map =>
-                map.displayName &&
-                !/HURM|TeamDeathmatch/i.test(map.mapUrl || "")
-            )
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+    .filter(map => {
+        const url = map.mapUrl || "";
+
+        return (
+            map.displayName &&
+            url.includes("/Game/Maps/") &&
+            !/HURM|TeamDeathmatch/i.test(url)
+        );
+    })
+    .sort((a, b) =>
+        a.displayName.localeCompare(b.displayName)
+    );
 
         renderAgents();
         renderMaps();
