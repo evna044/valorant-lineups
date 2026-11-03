@@ -52,16 +52,26 @@ async function loadData() {
                 a.displayName.localeCompare(b.displayName)
             );
 
-           maps = mapData.data
-    .filter(map => {
-        const url = map.mapUrl || "";
+           const standardMaps = [
+    "Abyss",
+    "Ascent",
+    "Bind",
+    "Breeze",
+    "Corrode",
+    "Fracture",
+    "Haven",
+    "Icebox",
+    "Lotus",
+    "Pearl",
+    "Split",
+    "Sunset",
+    "Summit"
+];
 
-        return (
-            map.displayName &&
-            url.includes("/Game/Maps/") &&
-            !/HURM|TeamDeathmatch/i.test(url)
-        );
-    })
+maps = mapData.data
+    .filter(map =>
+        standardMaps.includes(map.displayName)
+    )
     .sort((a, b) =>
         a.displayName.localeCompare(b.displayName)
     );
