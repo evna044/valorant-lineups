@@ -44,13 +44,14 @@ async function loadData() {
         const agentData = await agentsResponse.json();
         const mapData = await mapsResponse.json();
 
-        agents = agentData.data
-            .filter(agent =>
-                agent.isPlayableCharacter
-            )
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+       agents = agentData.data
+    .filter(agent =>
+        agent.isPlayableCharacter === true &&
+        agent.isAvailableForPlay === true
+    )
+    .sort((a, b) =>
+        a.displayName.localeCompare(b.displayName)
+    );
 
            const standardMaps = [
     "Abyss",
