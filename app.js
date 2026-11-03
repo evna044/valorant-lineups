@@ -1,5 +1,3 @@
-const API = "https://valorant-api.com/v1";
-
 let agents = [];
 let maps = [];
 
