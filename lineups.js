@@ -1,4 +1,3 @@
-
 let editingLineupId = null;
 
 const selectionData = sessionStorage.getItem("valorantSelection");
@@ -81,45 +80,44 @@ if (!selectionData) {
     // --------------------------------------------------
 
     async function checkAdmin(session = null) {
-    let user = session?.user || null;
+        const user = session?.user || null;
 
-    isAdmin = false;
+        isAdmin = false;
 
-    if (user) {
-        const { data, error } = await supabaseClient.rpc("is_admin");
+        if (user) {
+            const { data, error } = await supabaseClient.rpc("is_admin");
 
-        if (error) {
-            console.error("Erreur de vérification admin :", error);
+            if (error) {
+                console.error("Erreur de vérification admin :", error);
+            } else {
+                isAdmin = data === true;
+            }
+        }
+
+        loginForm.hidden = !!user;
+        logoutButton.hidden = !user;
+
+        if (!user) {
+            authStatus.textContent = "Connecte-toi pour gérer les lineups.";
+        } else if (isAdmin) {
+            authStatus.textContent = "Connecté en tant qu'administrateur.";
         } else {
-            isAdmin = data === true;
+            authStatus.textContent =
+                "Compte connecté : accès administrateur non autorisé.";
         }
-    }
 
-    loginForm.hidden = !!user;
-    logoutButton.hidden = !user;
+        form.hidden = !isAdmin;
 
-    if (!user) {
-        authStatus.textContent = "Connecte-toi pour gérer les lineups.";
-    } else if (isAdmin) {
-        authStatus.textContent = "Connecté en tant qu'administrateur.";
-    } else {
-        authStatus.textContent =
-            "Compte connecté : accès administrateur non autorisé.";
-    }
+        // Seul le bouton d'import est masqué pour les non-admins
+        const importLabel = document.querySelector('label[for="importInput"]');
 
-    form.hidden = !isAdmin;
-
-    if (importInput) {
-        const importContainer =
-            importInput.closest("label") || importInput.parentElement;
-
-        if (importContainer) {
-            importContainer.hidden = !isAdmin;
+        if (importLabel) {
+            importLabel.hidden = !isAdmin;
         }
+
+        renderLineups();
     }
 
-    renderLineups();
-}
     // Connexion avec e-mail et mot de passe
     loginForm.addEventListener("submit", async event => {
         event.preventDefault();
@@ -137,17 +135,9 @@ if (!selectionData) {
 
         if (error) {
             authStatus.textContent = "Connexion impossible : " + error.message;
-            return;
         }
 
-        await checkAdmin();
-
-        if (!isAdmin) {
-    authStatus.textContent =
-        "Connexion réussie, mais vérification des droits impossible. Réessaie dans un instant.";
-
-    return;
-}
+        // En cas de succès, onAuthStateChange (SIGNED_IN) met l'interface à jour.
     });
 
     // Déconnexion
@@ -162,17 +152,19 @@ if (!selectionData) {
         editingLineupId = null;
         form.reset();
 
-        await checkAdmin();
+        // onAuthStateChange (SIGNED_OUT) met l'interface à jour.
     });
 
     // Mise à jour lors d'un changement de session
-supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === "INITIAL_SESSION" ||
-        event === "SIGNED_IN" ||
-        event === "SIGNED_OUT") {
-        setTimeout(() => checkAdmin(session), 0);
-    }
-});
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (
+            event === "INITIAL_SESSION" ||
+            event === "SIGNED_IN" ||
+            event === "SIGNED_OUT"
+        ) {
+            setTimeout(() => checkAdmin(session), 0);
+        }
+    });
 
     // --------------------------------------------------
     // AFFICHAGE DES NOMS DES FICHIERS
@@ -277,32 +269,23 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
             let imageUrl = existingLineup?.image_url || null;
             let videoUrl = existingLineup?.video_url || null;
 
+            const oldImageUrl = imageUrl;
+            const oldVideoUrl = videoUrl;
+
             // Envoyer une nouvelle image si elle a été choisie
             if (imageInput.files[0]) {
-                const oldImageUrl = imageUrl;
-
                 imageUrl = await uploadMedia(
                     imageInput.files[0],
                     "images"
                 );
-
-                if (oldImageUrl) {
-                    await deleteMedia(oldImageUrl);
-                }
             }
 
             // Envoyer une nouvelle vidéo si elle a été choisie
             if (videoInput.files[0]) {
-                const oldVideoUrl = videoUrl;
-
                 videoUrl = await uploadMedia(
                     videoInput.files[0],
                     "videos"
                 );
-
-                if (oldVideoUrl) {
-                    await deleteMedia(oldVideoUrl);
-                }
             }
 
             const lineup = {
@@ -329,6 +312,10 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
             }
 
             if (result.error) throw result.error;
+
+            // Suppression des anciens fichiers seulement après le succès
+            if (imageUrl !== oldImageUrl) await deleteMedia(oldImageUrl);
+            if (videoUrl !== oldVideoUrl) await deleteMedia(oldVideoUrl);
 
             editingLineupId = null;
             form.reset();
@@ -375,7 +362,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
         const filteredLineups = allLineups.filter(lineup => {
             return (
                 activeCategories.length === 0 ||
-                activeCategories.includes(lineup.category)
+                activeCategories.includes(lineup.category || "Autre")
             );
         });
 
@@ -415,11 +402,6 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
                 image.className = "lineup-media";
 
                 image.addEventListener("click", () => {
-                    openImageViewer(image.src);
-                });
-
-                image.addEventListener("contextmenu", event => {
-                    event.preventDefault();
                     openImageViewer(image.src);
                 });
 
@@ -698,6 +680,15 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
             let importedCount = 0;
 
             for (const lineup of selectedLineups) {
+                // Évite les doublons
+                const alreadyExists = allLineups.some(l =>
+                    l.title === lineup.title &&
+                    l.agent === selection.agent.name &&
+                    l.map === selection.map.name
+                );
+
+                if (alreadyExists) continue;
+
                 const imageFile = convertBase64ToFile(lineup.image);
                 const videoFile = convertBase64ToFile(lineup.video);
 
@@ -743,11 +734,11 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     // --------------------------------------------------
 
     supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) {
-        console.error("Erreur de session :", error);
-        return;
-    }
+        if (error) {
+            console.error("Erreur de session :", error);
+            return;
+        }
 
-    checkAdmin(data.session);
-});
+        checkAdmin(data.session);
+    });
 }
