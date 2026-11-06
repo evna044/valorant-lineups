@@ -5,7 +5,8 @@ const PLANT_SPOTS_LIST = [
     "Default",
     "Open",
     "Triple Boxes",
-    "Site"
+    "Site",
+    "Under",
 ];
 
 let editingLineupId = null;
@@ -32,7 +33,22 @@ if (!selectionData) {
     const imageInput = document.getElementById("lineupImage");
     const videoInput = document.getElementById("lineupVideo");
 
-    const categorySelect = document.getElementById("lineupCategory");
+    const categoryGroup = document.getElementById("lineupCategoryGroup");
+
+    // Une lineup peut avoir plusieurs catégories (stockées séparées par des virgules)
+    function parseCategories(value) {
+        return (value || "Autre").split(",").map(c => c.trim()).filter(Boolean);
+    }
+
+    function getFormCategories() {
+        return [...categoryGroup.querySelectorAll("input:checked")].map(i => i.value);
+    }
+
+    function setFormCategories(list) {
+        categoryGroup.querySelectorAll("input").forEach(i => {
+            i.checked = list.includes(i.value);
+        });
+    }
     const postPlantFormFields = document.getElementById("postPlantFormFields");
     const lineupSiteInput = document.getElementById("lineupSite");
     const lineupPlantSpotSelect = document.getElementById("lineupPlantSpot");
@@ -78,8 +94,7 @@ if (!selectionData) {
 
     // Affichage contextuel dans le formulaire
     function updateFormCategoryFields() {
-        const selectedCat = categorySelect.value;
-        if (selectedCat === "Post-plant") {
+        if (getFormCategories().includes("Post-plant")) {
             postPlantFormFields.hidden = false;
         } else {
             postPlantFormFields.hidden = true;
@@ -88,7 +103,7 @@ if (!selectionData) {
         }
     }
 
-    categorySelect.addEventListener("change", updateFormCategoryFields);
+    categoryGroup.addEventListener("change", updateFormCategoryFields);
 
     // --------------------------------------------------
     // INTERFACE DE CONNEXION ADMIN
@@ -229,10 +244,16 @@ if (!selectionData) {
 
         const title = document.getElementById("lineupTitle").value.trim();
         const description = document.getElementById("lineupDescription").value.trim();
-        const category = document.getElementById("lineupCategory").value;
+        const categories = getFormCategories();
+        if (categories.length === 0) {
+            alert("Choisis au moins une catégorie.");
+            return;
+        }
+        const category = categories.join(",");
+        const isPostPlant = categories.includes("Post-plant");
 
-        const site = category === "Post-plant" ? lineupSiteInput.value : null;
-        const plant_spot = category === "Post-plant" ? lineupPlantSpotSelect.value : null;
+        const site = isPostPlant ? lineupSiteInput.value : null;
+        const plant_spot = isPostPlant ? lineupPlantSpotSelect.value : null;
 
         if (!title) return;
 
@@ -321,8 +342,8 @@ if (!selectionData) {
         const selectedPlantSpot = filterPlantSpotSelect.value;
 
         const filteredLineups = allLineups.filter(lineup => {
-            const cat = lineup.category || "Autre";
-            const categoryMatches = activeCategories.length === 0 || activeCategories.includes(cat);
+            const cats = parseCategories(lineup.category);
+            const categoryMatches = activeCategories.length === 0 || cats.includes(activeCategories[0]);
 
             if (!categoryMatches) return false;
 
@@ -356,8 +377,9 @@ if (!selectionData) {
             const category = document.createElement("span");
             category.className = "lineup-category";
             
-            let categoryText = lineup.category || "Autre";
-            if (lineup.category === "Post-plant" && (lineup.site || lineup.plant_spot)) {
+            const lineupCats = parseCategories(lineup.category);
+            let categoryText = lineupCats.join(" • ");
+            if (lineupCats.includes("Post-plant") && (lineup.site || lineup.plant_spot)) {
                 const details = [lineup.site ? `Site ${lineup.site}` : "", lineup.plant_spot].filter(Boolean).join(" • ");
                 categoryText += ` (${details})`;
             }
@@ -398,11 +420,11 @@ if (!selectionData) {
                     editingLineupId = lineup.id;
                     document.getElementById("lineupTitle").value = lineup.title;
                     document.getElementById("lineupDescription").value = lineup.description || "";
-                    document.getElementById("lineupCategory").value = lineup.category || "Autre";
+                    setFormCategories(parseCategories(lineup.category));
 
                     updateFormCategoryFields();
 
-                    if (lineup.category === "Post-plant") {
+                    if (parseCategories(lineup.category).includes("Post-plant")) {
                         lineupSiteInput.value = lineup.site || "";
                         lineupPlantSpotSelect.value = lineup.plant_spot || "";
                     }
@@ -460,10 +482,12 @@ if (!selectionData) {
 
             if (category === "Toutes") {
                 activeCategories = [];
-            } else if (activeCategories.includes(category)) {
-                activeCategories = activeCategories.filter(item => item !== category);
+            } else if (activeCategories[0] === category) {
+                // re-clic sur le filtre actif : retour à "Toutes"
+                activeCategories = [];
             } else {
-                activeCategories.push(category);
+                // un seul filtre à la fois
+                activeCategories = [category];
             }
 
             document.querySelectorAll(".category-filter").forEach(filter => {
