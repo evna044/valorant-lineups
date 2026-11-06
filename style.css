@@ -496,3 +496,11 @@ footer {
     background-color: #111419;
     letter-spacing: 1px;
 }
+.lineup-media {
+    width: 100%;
+    max-height: 250px; /* Empêche l'image de devenir géante */
+    object-fit: cover;  /* Recadre proprement l'image dans son conteneur */
+    border-radius: 6px;
+    margin-top: 10px;
+    cursor: pointer;
+}
