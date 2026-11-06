@@ -7,6 +7,7 @@ const PLANT_SPOTS_LIST = [
     "Triple Boxes",
     "Site",
     "Under",
+    "Bridge"
 ];
 
 let editingLineupId = null;
