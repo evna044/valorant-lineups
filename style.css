@@ -529,3 +529,50 @@ h1 {
     margin-top: 10px;
     background-color: #0f1923; /* Fond sombre si l'image est plus étroite que le conteneur */
 }
+/* --- TAILLE DES IMAGES ET VIDÉOS --- */
+.lineup-card img.lineup-media,
+.lineup-card video.lineup-media {
+    width: 100%;
+    max-height: 220px; /* Hauteur maximale réduite pour ne pas envahir l'écran */
+    object-fit: cover; /* Recadre proprement l'image pour qu'elle remplisse le cadre sans se déformer */
+    border-radius: 6px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+/* --- BOUTONS ADMINISTRATEUR (MODIFIER / SUPPRIMER) --- */
+.edit-button {
+    background-color: #ff4655; /* Rouge style Valorant */
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+    background-color: #e03e4b;
+}
+
+.delete-button {
+    background-color: transparent;
+    color: #ff4655;
+    border: 1px solid #ff4655;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.delete-button:hover {
+    background-color: #ff4655;
+    color: white;
+}
