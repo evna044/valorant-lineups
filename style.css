@@ -374,7 +374,8 @@ h1 {
     gap: 12px;
 }
 
-#lineupForm > label {
+#lineupForm > label,
+.post-plant-fields > label {
     color: var(--muted);
     font-size: 11px;
     font-weight: bold;
@@ -383,7 +384,8 @@ h1 {
 }
 
 #lineupTitle,
-#lineupDescription {
+#lineupDescription,
+#lineupPlantSpot {
     width: 100%;
     padding: 14px;
     color: white;
@@ -393,7 +395,8 @@ h1 {
 }
 
 #lineupTitle:focus,
-#lineupDescription:focus {
+#lineupDescription:focus,
+#lineupPlantSpot:focus {
     border-color: var(--red);
 }
 
@@ -402,7 +405,8 @@ h1 {
     resize: vertical;
 }
 
-#lineupCategory {
+#lineupCategory,
+#lineupSite {
     width: 100%;
     padding: 12px;
     background: #171717;
@@ -414,13 +418,26 @@ h1 {
     cursor: pointer;
 }
 
-#lineupCategory option {
+#lineupCategory option,
+#lineupSite option {
     background: #171717;
     color: #ffffff;
 }
 
-#lineupCategory:focus {
+#lineupCategory:focus,
+#lineupSite:focus {
     border-color: var(--red);
+}
+
+.post-plant-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: #0e1118;
+    border: 1px solid #ffffff15;
+    border-left: 3px solid var(--red);
+    margin-top: 5px;
 }
 
 .upload-grid {
@@ -462,13 +479,13 @@ h1 {
     overflow-wrap: anywhere;
 }
 
-/* FILTRES DE CATÉGORIES */
+/* FILTRES DE CATÉGORIES ET SOUS-FILTRES POST-PLANT */
 
 .category-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin: 20px 0;
+    margin: 20px 0 10px;
 }
 
 .category-filter {
@@ -487,6 +504,44 @@ h1 {
     background: var(--red);
     border-color: var(--red);
     color: white;
+}
+
+.post-plant-subfilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #171c26;
+    border: 1px solid #ffffff15;
+    border-left: 3px solid var(--red);
+}
+
+.subfilter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subfilter-item label {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--muted);
+}
+
+.subfilter-item select,
+.subfilter-item input {
+    padding: 8px 12px;
+    background: #0e1118;
+    color: white;
+    border: 1px solid #ffffff25;
+    border-radius: 4px;
+    outline: none;
+}
+
+.subfilter-item select:focus,
+.subfilter-item input:focus {
+    border-color: var(--red);
 }
 
 /* AFFICHAGE DES LINEUPS */
@@ -712,6 +767,11 @@ footer {
     .current-selection {
         gap: 25px;
         flex-wrap: wrap;
+    }
+
+    .post-plant-subfilters {
+        flex-direction: column;
+        align-items: stretch;
     }
 
 }
