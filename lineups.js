@@ -25,13 +25,36 @@ if (!selectionData) {
     const imageInput = document.getElementById("lineupImage");
     const videoInput = document.getElementById("lineupVideo");
 
+    const categorySelect = document.getElementById("lineupCategory");
+    const postPlantFormFields = document.getElementById("postPlantFormFields");
+    const lineupSiteInput = document.getElementById("lineupSite");
+    const lineupPlantSpotInput = document.getElementById("lineupPlantSpot");
+
     const exportButton = document.getElementById("exportButton");
     const importInput = document.getElementById("importInput");
     const categoryFilters = document.getElementById("categoryFilters");
 
+    const postPlantSubFilters = document.getElementById("postPlantSubFilters");
+    const filterSiteSelect = document.getElementById("filterSite");
+    const filterPlantSpotInput = document.getElementById("filterPlantSpot");
+
     let allLineups = [];
     let activeCategories = [];
     let isAdmin = false;
+
+    // Gestion de l'affichage des champs Post-plant dans le formulaire
+    function updateFormCategoryFields() {
+        const selectedCat = categorySelect.value;
+        if (selectedCat === "Post-plant") {
+            postPlantFormFields.hidden = false;
+        } else {
+            postPlantFormFields.hidden = true;
+            lineupSiteInput.value = "";
+            lineupPlantSpotInput.value = "";
+        }
+    }
+
+    categorySelect.addEventListener("change", updateFormCategoryFields);
 
     // --------------------------------------------------
     // INTERFACE DE CONNEXION
@@ -108,7 +131,6 @@ if (!selectionData) {
 
         form.hidden = !isAdmin;
 
-        // Seul le bouton d'import est masqué pour les non-admins
         const importLabel = document.querySelector('label[for="importInput"]');
 
         if (importLabel) {
@@ -136,8 +158,6 @@ if (!selectionData) {
         if (error) {
             authStatus.textContent = "Connexion impossible : " + error.message;
         }
-
-        // En cas de succès, onAuthStateChange (SIGNED_IN) met l'interface à jour.
     });
 
     // Déconnexion
@@ -151,8 +171,7 @@ if (!selectionData) {
 
         editingLineupId = null;
         form.reset();
-
-        // onAuthStateChange (SIGNED_OUT) met l'interface à jour.
+        updateFormCategoryFields();
     });
 
     // Mise à jour lors d'un changement de session
@@ -254,6 +273,9 @@ if (!selectionData) {
         const category =
             document.getElementById("lineupCategory").value;
 
+        const site = category === "Post-plant" ? lineupSiteInput.value : null;
+        const plant_spot = category === "Post-plant" ? lineupPlantSpotInput.value.trim() : null;
+
         if (!title) return;
 
         const submitButton =
@@ -272,7 +294,6 @@ if (!selectionData) {
             const oldImageUrl = imageUrl;
             const oldVideoUrl = videoUrl;
 
-            // Envoyer une nouvelle image si elle a été choisie
             if (imageInput.files[0]) {
                 imageUrl = await uploadMedia(
                     imageInput.files[0],
@@ -280,7 +301,6 @@ if (!selectionData) {
                 );
             }
 
-            // Envoyer une nouvelle vidéo si elle a été choisie
             if (videoInput.files[0]) {
                 videoUrl = await uploadMedia(
                     videoInput.files[0],
@@ -294,6 +314,8 @@ if (!selectionData) {
                 title,
                 description,
                 category,
+                site,
+                plant_spot,
                 image_url: imageUrl,
                 video_url: videoUrl
             };
@@ -313,12 +335,12 @@ if (!selectionData) {
 
             if (result.error) throw result.error;
 
-            // Suppression des anciens fichiers seulement après le succès
             if (imageUrl !== oldImageUrl) await deleteMedia(oldImageUrl);
             if (videoUrl !== oldVideoUrl) await deleteMedia(oldVideoUrl);
 
             editingLineupId = null;
             form.reset();
+            updateFormCategoryFields();
 
             document.getElementById("imageFileName").textContent =
                 "Aucune image choisie";
@@ -359,11 +381,29 @@ if (!selectionData) {
 
         allLineups = data || [];
 
+        const selectedSite = filterSiteSelect.value;
+        const selectedPlant = filterPlantSpotInput.value.trim().toLowerCase();
+
         const filteredLineups = allLineups.filter(lineup => {
-            return (
-                activeCategories.length === 0 ||
-                activeCategories.includes(lineup.category || "Autre")
-            );
+            const cat = lineup.category || "Autre";
+
+            // Filtre de catégorie principal
+            const categoryMatches =
+                activeCategories.length === 0 || activeCategories.includes(cat);
+
+            if (!categoryMatches) return false;
+
+            // Filtres secondaires si Post-plant est actif
+            if (activeCategories.includes("Post-plant")) {
+                if (selectedSite !== "Tous" && lineup.site !== selectedSite) {
+                    return false;
+                }
+                if (selectedPlant !== "" && (!lineup.plant_spot || !lineup.plant_spot.toLowerCase().includes(selectedPlant))) {
+                    return false;
+                }
+            }
+
+            return true;
         });
 
         container.innerHTML = "";
@@ -383,7 +423,13 @@ if (!selectionData) {
 
             const category = document.createElement("span");
             category.className = "lineup-category";
-            category.textContent = lineup.category || "Autre";
+            
+            let categoryText = lineup.category || "Autre";
+            if (lineup.category === "Post-plant" && (lineup.site || lineup.plant_spot)) {
+                const details = [lineup.site ? `Site ${lineup.site}` : "", lineup.plant_spot].filter(Boolean).join(" • ");
+                categoryText += ` (${details})`;
+            }
+            category.textContent = categoryText;
 
             card.append(title, category);
 
@@ -438,6 +484,13 @@ if (!selectionData) {
 
                     document.getElementById("lineupCategory").value =
                         lineup.category || "Autre";
+
+                    updateFormCategoryFields();
+
+                    if (lineup.category === "Post-plant") {
+                        lineupSiteInput.value = lineup.site || "";
+                        lineupPlantSpotInput.value = lineup.plant_spot || "";
+                    }
 
                     imageInput.value = "";
                     videoInput.value = "";
@@ -496,7 +549,7 @@ if (!selectionData) {
     }
 
     // --------------------------------------------------
-    // FILTRES PAR CATÉGORIE
+    // FILTRES PAR CATÉGORIE ET SOUS-FILTRES
     // --------------------------------------------------
 
     if (categoryFilters) {
@@ -527,9 +580,21 @@ if (!selectionData) {
                 );
             });
 
+            // Gère la visibilité des sous-filtres Site/Plant Spot
+            if (activeCategories.includes("Post-plant")) {
+                postPlantSubFilters.hidden = false;
+            } else {
+                postPlantSubFilters.hidden = true;
+                filterSiteSelect.value = "Tous";
+                filterPlantSpotInput.value = "";
+            }
+
             renderLineups();
         });
     }
+
+    filterSiteSelect.addEventListener("change", renderLineups);
+    filterPlantSpotInput.addEventListener("input", renderLineups);
 
     // --------------------------------------------------
     // ZOOM SUR LES IMAGES
@@ -624,6 +689,8 @@ if (!selectionData) {
                     title: lineup.title,
                     description: lineup.description || "",
                     category: lineup.category || "Autre",
+                    site: lineup.site || null,
+                    plantSpot: lineup.plant_spot || null,
                     createdAt: lineup.created_at,
                     image: await convertUrlToBase64(lineup.image_url),
                     video: await convertUrlToBase64(lineup.video_url)
@@ -680,7 +747,6 @@ if (!selectionData) {
             let importedCount = 0;
 
             for (const lineup of selectedLineups) {
-                // Évite les doublons
                 const alreadyExists = allLineups.some(l =>
                     l.title === lineup.title &&
                     l.agent === selection.agent.name &&
@@ -708,6 +774,8 @@ if (!selectionData) {
                         title: lineup.title,
                         description: lineup.description || "",
                         category: lineup.category || "Autre",
+                        site: lineup.site || lineup.siteLocation || null,
+                        plant_spot: lineup.plantSpot || lineup.plant_spot || null,
                         image_url: imageUrl,
                         video_url: videoUrl
                     }]);
