@@ -431,3 +431,68 @@ textarea {
 .delete-button:hover {
     background-color: #ff4655;
     color: white;
+}
+
+/* --- EXPORT / IMPORT --- */
+.export-import {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.export-import button,
+.import-button {
+    flex: 1;
+    min-width: 200px;
+    background: #181d24;
+    border: 1px solid #383e45;
+    color: #ece8e1;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.export-import button:hover,
+.import-button:hover {
+    border-color: #ff4655;
+    color: #ff4655;
+}
+
+/* --- VISIONNEUSE D'IMAGE (ZOOM) --- */
+.image-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.image-viewer img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* --- FOOTER --- */
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.75rem;
+    color: #8b97a2;
+    border-top: 1px solid #383e45;
+    background-color: #111419;
+    letter-spacing: 1px;
+}
