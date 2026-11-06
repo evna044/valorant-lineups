@@ -22,8 +22,9 @@
 
 .vp-map-card img {
     width: 100%;
-    height: 110px;
+    height: 130px;
     object-fit: cover;
+    object-position: center;
     display: block;
 }
 
@@ -42,12 +43,17 @@
     border: 1px solid #ffffff25;
     overflow: hidden;
     padding-bottom: 14px;
+    min-width: 0;
+    border-radius: 8px;
 }
 
 .vp-strategy-card > img {
+    display: block;
     width: 100%;
-    height: 160px;
-    object-fit: cover;
+    height: 180px;
+    object-fit: contain;
+    object-position: center;
+    background: #0b121a;
 }
 
 .vp-strategy-card h3,
@@ -183,6 +189,15 @@
     gap: 12px;
 }
 
+.vp-modal-images img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 65vh;
+    object-fit: contain;
+    background: #0b121a;
+}
+
 .vp-modal-lineups > article {
     padding: 12px;
     background: #0e1118;
@@ -190,12 +205,16 @@
 
 .vp-modal-lineups img,
 .vp-modal-lineups video {
+    display: block;
     width: 100%;
-    max-height: 180px;
+    max-width: 100%;
+    height: auto;
+    max-height: 240px;
     object-fit: contain;
+    background: #0b121a;
 }
 
-/* APERÇU DES NOUVELLES IMAGES */
+/* Aperçu des nouvelles images */
 
 .vp-new-images {
     display: flex;
@@ -225,7 +244,7 @@
     overflow-wrap: anywhere;
 }
 
-/* BOUTONS HARMONISÉS */
+/* Boutons */
 
 .vp-detail-button,
 .vp-external,
@@ -235,10 +254,16 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: 0.2s ease;
+    min-height: 40px;
+    line-height: 1.3;
+    border-radius: 5px;
 }
 
 .vp-detail-button,
 .vp-external {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin: 10px 12px;
     padding: 12px 16px;
     border: 1px solid #ff4655;
@@ -266,12 +291,27 @@
     color: white;
 }
 
-/* MOBILE */
+/* Boutons administrateur */
+
+.vp-strategy-card > .edit-button,
+.vp-strategy-card > .delete-button {
+    margin: 5px 12px;
+}
+
+/* Version mobile */
 
 @media (max-width: 620px) {
-
+    .vp-strategy-grid,
     .vp-map-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vp-map-card img {
+        height: 100px;
+    }
+
+    .vp-strategy-card > img {
+        height: 140px;
     }
 
     .vp-modal {
@@ -282,4 +322,8 @@
         padding: 12px;
     }
 
+    .vp-modal-images,
+    .vp-modal-lineups {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
