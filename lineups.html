@@ -85,6 +85,24 @@
                 <option value="Autre">Autre</option>
             </select>
 
+            <!-- CHAMPS CONTEXTUELS POST-PLANT -->
+            <div id="postPlantFormFields" class="post-plant-fields" hidden>
+                <label for="lineupSite">SITE</label>
+                <select id="lineupSite">
+                    <option value="">-- Choisir un site --</option>
+                    <option value="A">Site A</option>
+                    <option value="B">Site B</option>
+                    <option value="C">Site C</option>
+                </select>
+
+                <label for="lineupPlantSpot">PLANT SPOT (ZONE DE PLANT)</label>
+                <input
+                    type="text"
+                    id="lineupPlantSpot"
+                    placeholder="Ex : Default, Bumper, Cubby..."
+                >
+            </div>
+
             <div class="upload-grid">
 
                 <div class="upload-box">
@@ -158,6 +176,24 @@
             <button type="button" class="category-filter" data-category="Autre">
                 AUTRE
             </button>
+        </div>
+
+        <!-- SOUS-FILTRES POST-PLANT -->
+        <div id="postPlantSubFilters" class="post-plant-subfilters" hidden>
+            <div class="subfilter-item">
+                <label for="filterSite">SITE :</label>
+                <select id="filterSite">
+                    <option value="Tous">Tous les sites</option>
+                    <option value="A">Site A</option>
+                    <option value="B">Site B</option>
+                    <option value="C">Site C</option>
+                </select>
+            </div>
+
+            <div class="subfilter-item">
+                <label for="filterPlantSpot">PLANT :</label>
+                <input type="text" id="filterPlantSpot" placeholder="Rechercher une plant (ex: Default)...">
+            </div>
         </div>
 
         <div id="lineupsContainer" class="lineups-grid"></div>
