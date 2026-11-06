@@ -60,14 +60,14 @@
                 placeholder="Explique comment réaliser cette lineup..."
             ></textarea>
 
-            <label for="lineupCategory">CATÉGORIE</label>
-            <select id="lineupCategory" required>
-                <option value="Attaque">Attaque</option>
-                <option value="Defense">Defense</option>
-                <option value="Post-plant">Post-plant</option>
-                <option value="Retake">Retake</option>
-                <option value="Autre">Autre</option>
-            </select>
+            <label>CATÉGORIES (PLUSIEURS POSSIBLES)</label>
+            <div id="lineupCategoryGroup" class="category-checkboxes">
+                <label class="category-check"><input type="checkbox" value="Attaque"> Attaque</label>
+                <label class="category-check"><input type="checkbox" value="Defense"> Defense</label>
+                <label class="category-check"><input type="checkbox" value="Post-plant"> Post-plant</label>
+                <label class="category-check"><input type="checkbox" value="Retake"> Retake</label>
+                <label class="category-check"><input type="checkbox" value="Autre"> Autre</label>
+            </div>
 
             <!-- CHAMPS CONTEXTUELS POST-PLANT -->
             <div id="postPlantFormFields" class="post-plant-fields" hidden>
