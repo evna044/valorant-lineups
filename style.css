@@ -497,7 +497,7 @@ footer {
     letter-spacing: 1px;
 }
 .lineup-media {
-    width: 100%;
+    width: 50%;
     max-height: 250px; /* Empêche l'image de devenir géante */
     object-fit: cover;  /* Recadre proprement l'image dans son conteneur */
     border-radius: 6px;
