@@ -479,7 +479,7 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000; /* au-dessus de .vp-modal (9998) */
+    z-index: 10000; /* au-dessus de la fenêtre ValoPlant (.vp-modal = 9998) */
     cursor: zoom-out;
 }
 
@@ -886,4 +886,34 @@ button {
     .add-section {
         padding: 18px;
     }
+}
+
+/* Cases à cocher des catégories (création de lineup) */
+.category-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #0f1923;
+    border: 1px solid #383e45;
+    border-radius: 4px;
+    color: #ece8e1;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.category-check:hover,
+.category-check:has(input:checked) {
+    border-color: #ff4655;
+}
+
+.category-check input {
+    accent-color: #ff4655;
 }
