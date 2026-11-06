@@ -6,10 +6,6 @@ const PLANT_SPOTS_LIST = [
     "Open",
     "Triple Boxes",
     "Site"
-    // Exemple pour en ajouter :
-    // "Bumper",
-    // "Heaven",
-    // "Backsite"
 ];
 
 let editingLineupId = null;
@@ -57,23 +53,25 @@ if (!selectionData) {
     // INITIALISATION DES MENUS DÉROULANTS PLANT SPOTS
     // --------------------------------------------------
     function initPlantSpotSelects() {
-        // Formulaire de création / édition
-        lineupPlantSpotSelect.innerHTML = '<option value="">-- Choisir une plant --</option>';
-        PLANT_SPOTS_LIST.forEach(spot => {
-            const opt = document.createElement("option");
-            opt.value = spot;
-            opt.textContent = spot;
-            lineupPlantSpotSelect.appendChild(opt);
-        });
+        if (lineupPlantSpotSelect) {
+            lineupPlantSpotSelect.innerHTML = '<option value="">-- Choisir une plant --</option>';
+            PLANT_SPOTS_LIST.forEach(spot => {
+                const opt = document.createElement("option");
+                opt.value = spot;
+                opt.textContent = spot;
+                lineupPlantSpotSelect.appendChild(opt);
+            });
+        }
 
-        // Filtre de recherche
-        filterPlantSpotSelect.innerHTML = '<option value="Toutes">Toutes les plants</option>';
-        PLANT_SPOTS_LIST.forEach(spot => {
-            const opt = document.createElement("option");
-            opt.value = spot;
-            opt.textContent = spot;
-            filterPlantSpotSelect.appendChild(opt);
-        });
+        if (filterPlantSpotSelect) {
+            filterPlantSpotSelect.innerHTML = '<option value="Toutes">Toutes les plants</option>';
+            PLANT_SPOTS_LIST.forEach(spot => {
+                const opt = document.createElement("option");
+                opt.value = spot;
+                opt.textContent = spot;
+                filterPlantSpotSelect.appendChild(opt);
+            });
+        }
     }
 
     initPlantSpotSelects();
@@ -377,189 +375,4 @@ if (!selectionData) {
                 const image = document.createElement("img");
                 image.src = lineup.image_url;
                 image.alt = lineup.title;
-                image.className = "lineup-media";
-                image.addEventListener("click", () => openImageViewer(image.src));
-                card.appendChild(image);
-            }
-
-            if (lineup.video_url) {
-                const video = document.createElement("video");
-                video.src = lineup.video_url;
-                video.controls = true;
-                video.className = "lineup-media";
-                card.appendChild(video);
-            }
-
-            if (isAdmin) {
-                const editButton = document.createElement("button");
-                editButton.type = "button";
-                editButton.className = "edit-button";
-                editButton.textContent = "MODIFIER";
-
-                editButton.addEventListener("click", () => {
-                    editingLineupId = lineup.id;
-                    document.getElementById("lineupTitle").value = lineup.title;
-                    document.getElementById("lineupDescription").value = lineup.description || "";
-                    document.getElementById("lineupCategory").value = lineup.category || "Autre";
-
-                    updateFormCategoryFields();
-
-                    if (lineup.category === "Post-plant") {
-                        lineupSiteInput.value = lineup.site || "";
-                        lineupPlantSpotSelect.value = lineup.plant_spot || "";
-                    }
-
-                    imageInput.value = "";
-                    videoInput.value = "";
-
-                    document.getElementById("imageFileName").textContent = lineup.image_url ? "Image déjà enregistrée" : "Aucune image choisie";
-                    document.getElementById("videoFileName").textContent = lineup.video_url ? "Vidéo déjà enregistrée" : "Aucune vidéo choisie";
-
-                    form.querySelector("button[type='submit']").textContent = "ENREGISTRER LES MODIFICATIONS →";
-                    form.scrollIntoView({ behavior: "smooth", block: "center" });
-                });
-
-                card.appendChild(editButton);
-
-                const deleteButton = document.createElement("button");
-                deleteButton.type = "button";
-                deleteButton.className = "delete-button";
-                deleteButton.textContent = "SUPPRIMER";
-
-                deleteButton.addEventListener("click", async () => {
-                    if (!confirm("Supprimer cette lineup ?")) return;
-
-                    const { error } = await supabaseClient.from("lineups").delete().eq("id", lineup.id);
-
-                    if (error) {
-                        alert("Erreur lors de la suppression : " + error.message);
-                        return;
-                    }
-
-                    await deleteMedia(lineup.image_url);
-                    await deleteMedia(lineup.video_url);
-
-                    await renderLineups();
-                });
-
-                card.appendChild(deleteButton);
-            }
-
-            container.appendChild(card);
-        });
-    }
-
-    // --------------------------------------------------
-    // FILTRES INTERACTIFS
-    // --------------------------------------------------
-
-    if (categoryFilters) {
-        categoryFilters.addEventListener("click", event => {
-            const button = event.target.closest(".category-filter");
-            if (!button) return;
-
-            const category = button.dataset.category;
-
-            if (category === "Toutes") {
-                activeCategories = [];
-            } else if (activeCategories.includes(category)) {
-                activeCategories = activeCategories.filter(item => item !== category);
-            } else {
-                activeCategories.push(category);
-            }
-
-            document.querySelectorAll(".category-filter").forEach(filter => {
-                const filterCategory = filter.dataset.category;
-                filter.classList.toggle(
-                    "active",
-                    filterCategory === "Toutes" ? activeCategories.length === 0 : activeCategories.includes(filterCategory)
-                );
-            });
-
-            if (activeCategories.includes("Post-plant")) {
-                postPlantSubFilters.hidden = false;
-            } else {
-                postPlantSubFilters.hidden = true;
-                filterSiteSelect.value = "Tous";
-                filterPlantSpotSelect.value = "Toutes";
-            }
-
-            renderLineups();
-        });
-    }
-
-    filterSiteSelect.addEventListener("change", renderLineups);
-    filterPlantSpotSelect.addEventListener("change", renderLineups);
-
-    // --------------------------------------------------
-    // ZOOM IMAGE
-    // --------------------------------------------------
-
-    function openImageViewer(src) {
-        const viewer = document.createElement("div");
-        viewer.className = "image-viewer";
-        const image = document.createElement("img");
-        image.src = src;
-        image.alt = "Image agrandie";
-
-        viewer.appendChild(image);
-        document.body.appendChild(viewer);
-
-        const closeViewer = () => {
-            viewer.remove();
-            document.removeEventListener("keydown", closeOnEscape);
-        };
-
-        const closeOnEscape = event => {
-            if (event.key === "Escape") closeViewer();
-        };
-
-        viewer.addEventListener("click", closeViewer);
-        document.addEventListener("keydown", closeOnEscape);
-    }
-
-    // --------------------------------------------------
-    // EXPORT ET IMPORT JSON
-    // --------------------------------------------------
-
-    async function convertUrlToBase64(url) {
-        if (!url) return null;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Impossible de récupérer un média.");
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({
-                name: url.split("/").pop().split("?")[0],
-                type: blob.type,
-                data: reader.result
-            });
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-    }
-
-    function convertBase64ToFile(fileData) {
-        if (!fileData?.data || !fileData?.name) return null;
-        const parts = fileData.data.split(",");
-        const mimeMatch = parts[0].match(/:(.*?);/);
-        const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
-        const binary = atob(parts[1]);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
-        return new File([bytes], fileData.name, { type: fileData.type || mime });
-    }
-
-    exportButton.addEventListener("click", async () => {
-        try {
-            const exported = await Promise.all(
-                allLineups.map(async lineup => ({
-                    agent: lineup.agent,
-                    map: lineup.map,
-                    title: lineup.title,
-                    description: lineup.description || "",
-                    category: lineup.category || "Autre",
-                    site: lineup.site || null,
-                    plantSpot: lineup.plant_spot || null,
+                image.className = "lineup
