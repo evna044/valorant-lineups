@@ -375,4 +375,281 @@ if (!selectionData) {
                 const image = document.createElement("img");
                 image.src = lineup.image_url;
                 image.alt = lineup.title;
-                image.className = "lineup";
+                image.className = "lineup-media";
+                image.addEventListener("click", () => openImageViewer(image.src));
+                card.appendChild(image);
+            }
+
+            if (lineup.video_url) {
+                const video = document.createElement("video");
+                video.src = lineup.video_url;
+                video.controls = true;
+                video.className = "lineup-media";
+                card.appendChild(video);
+            }
+
+            if (isAdmin) {
+                const editButton = document.createElement("button");
+                editButton.type = "button";
+                editButton.className = "edit-button";
+                editButton.textContent = "MODIFIER";
+
+                editButton.addEventListener("click", () => {
+                    editingLineupId = lineup.id;
+                    document.getElementById("lineupTitle").value = lineup.title;
+                    document.getElementById("lineupDescription").value = lineup.description || "";
+                    document.getElementById("lineupCategory").value = lineup.category || "Autre";
+
+                    updateFormCategoryFields();
+
+                    if (lineup.category === "Post-plant") {
+                        lineupSiteInput.value = lineup.site || "";
+                        lineupPlantSpotSelect.value = lineup.plant_spot || "";
+                    }
+
+                    imageInput.value = "";
+                    videoInput.value = "";
+
+                    document.getElementById("imageFileName").textContent = lineup.image_url ? "Image déjà enregistrée" : "Aucune image choisie";
+                    document.getElementById("videoFileName").textContent = lineup.video_url ? "Vidéo déjà enregistrée" : "Aucune vidéo choisie";
+
+                    form.querySelector("button[type='submit']").textContent = "ENREGISTRER LES MODIFICATIONS →";
+                    form.scrollIntoView({ behavior: "smooth", block: "center" });
+                });
+
+                card.appendChild(editButton);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "delete-button";
+                deleteButton.textContent = "SUPPRIMER";
+
+                deleteButton.addEventListener("click", async () => {
+                    if (!confirm("Supprimer cette lineup ?")) return;
+
+                    const { error } = await supabaseClient.from("lineups").delete().eq("id", lineup.id);
+
+                    if (error) {
+                        alert("Erreur lors de la suppression : " + error.message);
+                        return;
+                    }
+
+                    await deleteMedia(lineup.image_url);
+                    await deleteMedia(lineup.video_url);
+
+                    await renderLineups();
+                });
+
+                card.appendChild(deleteButton);
+            }
+
+            container.appendChild(card);
+        });
+    }
+
+    // --------------------------------------------------
+    // FILTRES INTERACTIFS
+    // --------------------------------------------------
+
+    if (categoryFilters) {
+        categoryFilters.addEventListener("click", event => {
+            const button = event.target.closest(".category-filter");
+            if (!button) return;
+
+            const category = button.dataset.category;
+
+            if (category === "Toutes") {
+                activeCategories = [];
+            } else if (activeCategories.includes(category)) {
+                activeCategories = activeCategories.filter(item => item !== category);
+            } else {
+                activeCategories.push(category);
+            }
+
+            document.querySelectorAll(".category-filter").forEach(filter => {
+                const filterCategory = filter.dataset.category;
+                filter.classList.toggle(
+                    "active",
+                    filterCategory === "Toutes" ? activeCategories.length === 0 : activeCategories.includes(filterCategory)
+                );
+            });
+
+            if (activeCategories.includes("Post-plant")) {
+                postPlantSubFilters.hidden = false;
+            } else {
+                postPlantSubFilters.hidden = true;
+                filterSiteSelect.value = "Tous";
+                filterPlantSpotSelect.value = "Toutes";
+            }
+
+            renderLineups();
+        });
+    }
+
+    filterSiteSelect.addEventListener("change", renderLineups);
+    filterPlantSpotSelect.addEventListener("change", renderLineups);
+
+    // --------------------------------------------------
+    // ZOOM IMAGE
+    // --------------------------------------------------
+
+    function openImageViewer(src) {
+        const viewer = document.createElement("div");
+        viewer.className = "image-viewer";
+        const image = document.createElement("img");
+        image.src = src;
+        image.alt = "Image agrandie";
+
+        viewer.appendChild(image);
+        document.body.appendChild(viewer);
+
+        const closeViewer = () => {
+            viewer.remove();
+            document.removeEventListener("keydown", closeOnEscape);
+        };
+
+        const closeOnEscape = event => {
+            if (event.key === "Escape") closeViewer();
+        };
+
+        viewer.addEventListener("click", closeViewer);
+        document.addEventListener("keydown", closeOnEscape);
+    }
+
+    // --------------------------------------------------
+    // EXPORT ET IMPORT JSON
+    // --------------------------------------------------
+
+    async function convertUrlToBase64(url) {
+        if (!url) return null;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Impossible de récupérer un média.");
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+                name: url.split("/").pop().split("?")[0],
+                type: blob.type,
+                data: reader.result
+            });
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    function convertBase64ToFile(fileData) {
+        if (!fileData?.data || !fileData?.name) return null;
+        const parts = fileData.data.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+        const binary = atob(parts[1]);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return new File([bytes], fileData.name, { type: fileData.type || mime });
+    }
+
+    exportButton.addEventListener("click", async () => {
+        try {
+            const exported = await Promise.all(
+                allLineups.map(async lineup => ({
+                    agent: lineup.agent,
+                    map: lineup.map,
+                    title: lineup.title,
+                    description: lineup.description || "",
+                    category: lineup.category || "Autre",
+                    site: lineup.site || null,
+                    plantSpot: lineup.plant_spot || null,
+                    createdAt: lineup.created_at,
+                    image: await convertUrlToBase64(lineup.image_url),
+                    video: await convertUrlToBase64(lineup.video_url)
+                }))
+            );
+
+            const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `lineups-${selection.agent.name}-${selection.map.name}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error(error);
+            alert("Erreur lors de l'exportation : " + error.message);
+        }
+    });
+
+    importInput.addEventListener("change", async event => {
+        if (!isAdmin) {
+            alert("Seuls les administrateurs peuvent importer des lineups.");
+            event.target.value = "";
+            return;
+        }
+
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            const imported = JSON.parse(await file.text());
+            if (!Array.isArray(imported)) throw new Error("Format JSON invalide.");
+
+            const selectedLineups = imported.filter(lineup =>
+                lineup.agent === selection.agent.name &&
+                lineup.map === selection.map.name
+            );
+
+            let importedCount = 0;
+
+            for (const lineup of selectedLineups) {
+                const alreadyExists = allLineups.some(l =>
+                    l.title === lineup.title &&
+                    l.agent === selection.agent.name &&
+                    l.map === selection.map.name
+                );
+
+                if (alreadyExists) continue;
+
+                const imageFile = convertBase64ToFile(lineup.image);
+                const videoFile = convertBase64ToFile(lineup.video);
+
+                const imageUrl = imageFile ? await uploadMedia(imageFile, "images") : null;
+                const videoUrl = videoFile ? await uploadMedia(videoFile, "videos") : null;
+
+                const { error } = await supabaseClient
+                    .from("lineups")
+                    .insert([{
+                        agent: selection.agent.name,
+                        map: selection.map.name,
+                        title: lineup.title,
+                        description: lineup.description || "",
+                        category: lineup.category || "Autre",
+                        site: lineup.site || lineup.siteLocation || null,
+                        plant_spot: lineup.plantSpot || lineup.plant_spot || null,
+                        image_url: imageUrl,
+                        video_url: videoUrl
+                    }]);
+
+                if (error) throw error;
+                importedCount++;
+            }
+
+            alert(`${importedCount} lineup(s) importée(s).`);
+            await renderLineups();
+
+        } catch (error) {
+            console.error(error);
+            alert("Erreur lors de l'importation : " + error.message);
+        } finally {
+            event.target.value = "";
+        }
+    });
+
+    supabaseClient.auth.getSession().then(({ data, error }) => {
+        if (error) {
+            console.error("Erreur de session :", error);
+            return;
+        }
+        checkAdmin(data.session);
+    });
+}
