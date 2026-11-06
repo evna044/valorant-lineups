@@ -384,8 +384,7 @@ h1 {
 }
 
 #lineupTitle,
-#lineupDescription,
-#lineupPlantSpot {
+#lineupDescription {
     width: 100%;
     padding: 14px;
     color: white;
@@ -395,8 +394,7 @@ h1 {
 }
 
 #lineupTitle:focus,
-#lineupDescription:focus,
-#lineupPlantSpot:focus {
+#lineupDescription:focus {
     border-color: var(--red);
 }
 
@@ -406,7 +404,8 @@ h1 {
 }
 
 #lineupCategory,
-#lineupSite {
+#lineupSite,
+#lineupPlantSpot {
     width: 100%;
     padding: 12px;
     background: #171717;
@@ -419,13 +418,15 @@ h1 {
 }
 
 #lineupCategory option,
-#lineupSite option {
+#lineupSite option,
+#lineupPlantSpot option {
     background: #171717;
     color: #ffffff;
 }
 
 #lineupCategory:focus,
-#lineupSite:focus {
+#lineupSite:focus,
+#lineupPlantSpot:focus {
     border-color: var(--red);
 }
 
@@ -518,260 +519,4 @@ h1 {
 }
 
 .subfilter-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.subfilter-item label {
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--muted);
-}
-
-.subfilter-item select,
-.subfilter-item input {
-    padding: 8px 12px;
-    background: #0e1118;
-    color: white;
-    border: 1px solid #ffffff25;
-    border-radius: 4px;
-    outline: none;
-}
-
-.subfilter-item select:focus,
-.subfilter-item input:focus {
-    border-color: var(--red);
-}
-
-/* AFFICHAGE DES LINEUPS */
-
-.lineups-section {
-    margin-top: 50px;
-}
-
-.lineups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-}
-
-.lineup-card {
-    background: var(--panel);
-    border: 1px solid #ffffff20;
-    padding: 18px;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.lineup-card h3 {
-    font-size: 19px;
-    margin: 0 0 12px;
-}
-
-.lineup-category {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding: 5px 9px;
-    background: #ff465522;
-    color: #ff7883;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.lineup-card p {
-    color: #aeb4c0;
-    font-size: 13px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
-
-/* Images et vidéos */
-.lineup-media {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    max-height: 350px;
-    object-fit: contain;
-    background: #080b11;
-    border-radius: 8px;
-    margin-top: 15px;
-    cursor: pointer;
-}
-
-/* BOUTONS MODIFIER / SUPPRIMER */
-
-.edit-button,
-.delete-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 110px;
-    height: 36px;
-    padding: 0;
-    margin: 10px 5px 0 0;
-    background: var(--red);
-    color: white;
-    border: 1px solid var(--red);
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.edit-button:hover,
-.delete-button:hover {
-    background: var(--red-dark);
-    border-color: var(--red-dark);
-}
-
-/* ZOOM IMAGE */
-
-.image-viewer {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.92);
-    cursor: zoom-out;
-}
-
-.image-viewer img {
-    max-width: 95%;
-    max-height: 90vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 8px;
-    border: 2px solid var(--red);
-    box-shadow: 0 0 30px rgba(255, 70, 85, 0.35);
-}
-
-/* BOUTONS EXPORT / IMPORT */
-
-.export-import {
-    margin-top: 30px;
-}
-
-.export-import button,
-.export-import .import-button {
-    display: inline-block;
-    background: var(--red);
-    color: #ffffff;
-    border: 1px solid var(--red);
-    padding: 12px 20px;
-    border-radius: 5px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.export-import button:hover,
-.export-import .import-button:hover {
-    background: #d83242;
-    border-color: #d83242;
-}
-
-.export-import [hidden] {
-    display: none !important;
-}
-
-/* ESPACE ADMINISTRATEUR */
-
-.admin-login {
-    max-width: 450px;
-    margin: 30px auto;
-    padding: 20px;
-    background: #1b1b1b;
-    border: 1px solid #333;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.admin-login h2 {
-    color: var(--red);
-    font-size: 20px;
-}
-
-.admin-login input {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin: 12px 0;
-    background: #292929;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 5px;
-}
-
-.admin-login button {
-    padding: 10px 18px;
-    margin-top: 10px;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.admin-login button:hover {
-    background: var(--red-dark);
-}
-
-.admin-login [hidden],
-#lineupForm[hidden] {
-    display: none !important;
-}
-
-/* FOOTER */
-
-footer {
-    border-top: 1px solid #ffffff15;
-    padding: 22px 5vw;
-    color: #687080;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    text-align: center;
-}
-
-/* MOBILE */
-
-@media (max-width: 620px) {
-
-    .container {
-        margin-top: 32px;
-    }
-
-    .agent-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .agent-option {
-        height: 130px;
-    }
-
-    .upload-grid,
-    .lineups-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .current-selection {
-        gap: 25px;
-        flex-wrap: wrap;
-    }
-
-    .post-plant-subfilters {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-}
+    display:
