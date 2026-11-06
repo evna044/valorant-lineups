@@ -4,7 +4,7 @@
 const PLANT_SPOTS_LIST = [
     "Default",
     "Open",
-    "Triple Boxes",
+    "Boxes",
     "Site",
     "Under",
     "Bridge"
