@@ -326,7 +326,7 @@ if (!selectionData) {
 
             if (!categoryMatches) return false;
 
-            // Filtres avancés si "Post-plant" est actif
+            // Si "Post-plant" est actif, on applique les sous-filtres Site et Plant Spot
             if (activeCategories.includes("Post-plant")) {
                 if (selectedSite !== "Tous" && lineup.site !== selectedSite) {
                     return false;
