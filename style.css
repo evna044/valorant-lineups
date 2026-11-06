@@ -8,6 +8,10 @@
 
 body {
     background-color: #0f1923;
+    background-image:
+        radial-gradient(ellipse at top left, rgba(255, 70, 85, 0.14), transparent 55%),
+        radial-gradient(ellipse at bottom right, rgba(255, 70, 85, 0.08), transparent 50%);
+    background-attachment: fixed;
     color: #ece8e1;
     min-height: 100vh;
     display: flex;
@@ -475,8 +479,8 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    cursor: pointer;
+    z-index: 10000; /* au-dessus de .vp-modal (9998) */
+    cursor: zoom-out;
 }
 
 .image-viewer img {
