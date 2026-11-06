@@ -1,17 +1,11 @@
-const { createClient } = supabase;
 
+
+
+
+
+// Initialisation de Supabase
 const SUPABASE_URL = "https://bgpvsqaiodvwzlelgcwe.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_BnJAUwUxEsdZiwXBgJ0ldg_RqMcS2S0";
 
-const SUPABASE_KEY = "sb_publishable_BnJAUwUxEsdZiwXBgJ0ldg_RqMcS2S0";
-
-window.supabaseClient = createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
-        }
-    }
-);
+// On l'attache explicitement à window pour qu'il soit accessible partout
+window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
