@@ -375,4 +375,4 @@ if (!selectionData) {
                 const image = document.createElement("img");
                 image.src = lineup.image_url;
                 image.alt = lineup.title;
-                image.className = "lineup"
+                image.className = "lineup";
