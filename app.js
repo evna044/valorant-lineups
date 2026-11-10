@@ -11,7 +11,6 @@ const mapTrigger = document.getElementById("mapTrigger");
 const mapMenu = document.getElementById("mapMenu");
 const validateButton = document.getElementById("validateButton");
 
-// Accepte les rôles en anglais ET en français (selon la langue du JSON)
 const roleNames = {
     Duelist: "Duelliste",
     Duelliste: "Duelliste",
@@ -23,7 +22,7 @@ const roleNames = {
     Sentinelle: "Sentinelle"
 };
 
-// CHARGEMENT DES DONNEES
+// CHARGEMENT DES DONNÉES
 
 async function loadData() {
     try {
@@ -40,13 +39,8 @@ async function loadData() {
         const mapData = await mapsResponse.json();
 
         agents = agentData.data
-            .filter(agent =>
-                agent.isPlayableCharacter === true &&
-                agent.displayIcon
-            )
-            .sort((a, b) =>
-                a.displayName.localeCompare(b.displayName)
-            );
+            .filter(agent => agent.isPlayableCharacter === true && agent.displayIcon)
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
         maps = mapData.data
             .filter(map => STANDARD_MAPS.includes(map.displayName))
@@ -55,13 +49,12 @@ async function loadData() {
         renderAgents();
         renderMaps();
 
-        document.getElementById("agentCount").textContent =
-            `${agents.length} AGENTS`;
+        const countElem = document.getElementById("agentCount");
+        if (countElem) countElem.textContent = `${agents.length} AGENTS`;
 
     } catch (error) {
-        agentGrid.textContent = "Impossible de charger les agents.";
-        mapOptions.textContent = "Impossible de charger les maps.";
-
+        if (agentGrid) agentGrid.textContent = "Impossible de charger les agents.";
+        if (mapOptions) mapOptions.textContent = "Impossible de charger les maps.";
         console.error("Erreur de chargement :", error);
     }
 }
@@ -69,230 +62,179 @@ async function loadData() {
 // AFFICHER LES AGENTS
 
 function renderAgents() {
-
+    if (!agentGrid) return;
     agentGrid.innerHTML = "";
 
     const visibleAgents = agents.filter(agent => {
-
-        const role =
-            roleNames[agent.role?.displayName] || "Autre";
-
+        const role = roleNames[agent.role?.displayName] || "Autre";
         return activeRole === "Tous" || role === activeRole;
-
     });
 
     visibleAgents.forEach(agent => {
-
         const button = document.createElement("button");
-
-        button.className = "agent-option";
-
+        button.className = "agent-card";
         if (selectedAgent?.uuid === agent.uuid) {
             button.classList.add("selected");
         }
-
         button.type = "button";
 
         const image = document.createElement("img");
-
-        image.src = agent.fullPortrait || agent.displayIcon;
+        image.className = "agent-portrait";
+        image.src = agent.displayIcon || agent.fullPortrait;
         image.alt = agent.displayName;
         image.loading = "lazy";
 
-        const name = document.createElement("span");
+        const infoDiv = document.createElement("div");
+        infoDiv.className = "agent-info";
 
-        name.className = "agent-name";
-        name.textContent = agent.displayName;
+        const name = document.createElement("h3");
+        name.textContent = agent.displayName.toUpperCase();
 
-        button.append(image, name);
+        const roleSpan = document.createElement("p");
+        roleSpan.textContent = roleNames[agent.role?.displayName] || "Autre";
+
+        infoDiv.append(name, roleSpan);
+        button.append(image, infoDiv);
 
         button.addEventListener("click", () => {
-
             selectedAgent = agent;
-
             renderAgents();
 
-            document.getElementById("agentInfo").textContent =
-                `Agent sélectionné : ${agent.displayName}`;
+            const infoElem = document.getElementById("agentInfo");
+            if (infoElem) infoElem.textContent = `Agent sélectionné : ${agent.displayName}`;
 
             updateValidation();
-
         });
 
         agentGrid.appendChild(button);
-
     });
-
 }
 
 // AFFICHER LES MAPS
 
 function renderMaps() {
-
+    if (!mapOptions) return;
     mapOptions.innerHTML = "";
 
     maps.forEach(map => {
-
         const button = document.createElement("button");
-
-        button.className = "map-option";
+        button.className = "map-card";
         button.type = "button";
 
         if (selectedMap?.uuid === map.uuid) {
             button.classList.add("selected");
         }
 
-        const image = document.createElement("img");
-
-        image.src = map.splash;
-        image.alt = map.displayName;
-
-        const name = document.createElement("span");
-
+        const infoDiv = document.createElement("div");
+        infoDiv.className = "map-info";
+        const name = document.createElement("h3");
         name.textContent = map.displayName.toUpperCase();
+        infoDiv.appendChild(name);
 
-        button.append(image, name);
+        button.appendChild(infoDiv);
 
         button.addEventListener("click", () => {
-
             selectedMap = map;
 
-            mapTrigger.innerHTML = "";
+            if (mapTrigger) {
+                mapTrigger.innerHTML = "";
 
-            const content = document.createElement("span");
-            content.id = "mapTriggerContent";
+                const content = document.createElement("span");
+                content.id = "mapTriggerContent";
+                content.textContent = `MAP : ${map.displayName.toUpperCase()}`;
 
-            const selectedImage = document.createElement("img");
-            selectedImage.src = map.splash;
-            selectedImage.alt = map.displayName;
+                const arrow = document.createElement("span");
+                arrow.className = "chevron";
+                arrow.textContent = " ⌄";
 
-            const selectedName = document.createElement("span");
-            selectedName.className = "map-trigger-name";
-            selectedName.textContent = map.displayName.toUpperCase();
+                mapTrigger.append(content, arrow);
+                mapTrigger.classList.add("has-map");
+            }
 
-            content.append(selectedImage, selectedName);
+            if (mapMenu) mapMenu.hidden = true;
+            if (mapTrigger) mapTrigger.setAttribute("aria-expanded", "false");
 
-            const arrow = document.createElement("span");
-            arrow.className = "chevron";
-            arrow.textContent = "⌄";
-
-            mapTrigger.append(content, arrow);
-            mapTrigger.classList.add("has-map");
-
-            mapMenu.hidden = true;
-
-            mapTrigger.setAttribute("aria-expanded", "false");
-
-            document.getElementById("mapInfo").textContent =
-                `Map sélectionnée : ${map.displayName}`;
+            const mapInfoElem = document.getElementById("mapInfo");
+            if (mapInfoElem) mapInfoElem.textContent = `Map sélectionnée : ${map.displayName}`;
 
             renderMaps();
-
             updateValidation();
-
         });
 
         mapOptions.appendChild(button);
-
     });
-
 }
 
-// OUVRIR LE MENU
+// OUVRIR ET FERMER LE MENU DES MAPS
 
-mapTrigger.addEventListener("click", () => {
-
-    mapMenu.hidden = !mapMenu.hidden;
-
-    mapTrigger.setAttribute(
-        "aria-expanded",
-        String(!mapMenu.hidden)
-    );
-
-});
-
-// FERMER LE MENU
+if (mapTrigger) {
+    mapTrigger.addEventListener("click", () => {
+        if (!mapMenu) return;
+        mapMenu.hidden = !mapMenu.hidden;
+        mapTrigger.setAttribute("aria-expanded", String(!mapMenu.hidden));
+    });
+}
 
 document.addEventListener("click", event => {
-
-    if (!event.target.closest(".map-picker")) {
-
+    if (!event.target.closest(".map-picker") && mapMenu && mapTrigger) {
         mapMenu.hidden = true;
-
         mapTrigger.setAttribute("aria-expanded", "false");
-
     }
-
 });
 
 // FILTRES DES AGENTS
 
-document.getElementById("roleFilters")
-    .addEventListener("click", event => {
-
+const roleFiltersElem = document.getElementById("roleFilters");
+if (roleFiltersElem) {
+    roleFiltersElem.addEventListener("click", event => {
         const button = event.target.closest(".filter");
-
         if (!button) return;
 
         activeRole = button.dataset.role;
 
         document.querySelectorAll(".filter").forEach(filter => {
-
-            filter.classList.toggle(
-                "active",
-                filter === button
-            );
-
+            filter.classList.toggle("active", filter === button);
         });
 
         renderAgents();
-
     });
+}
 
-// VERIFIER LA SELECTION
+// VÉRIFIER LA SÉLECTION
 
 function updateValidation() {
-
     const ready = Boolean(selectedAgent && selectedMap);
+    if (validateButton) validateButton.disabled = !ready;
 
-    validateButton.disabled = !ready;
-
-    document.getElementById("validationMessage").textContent =
-        ready
+    const valMsg = document.getElementById("validationMessage");
+    if (valMsg) {
+        valMsg.textContent = ready
             ? "Tu peux maintenant accéder à tes lineups."
             : "Sélectionne un agent et une map.";
-
+    }
 }
 
 // VALIDER
 
-validateButton.addEventListener("click", () => {
+if (validateButton) {
+    validateButton.addEventListener("click", () => {
+        if (!selectedAgent || !selectedMap) return;
 
-    if (!selectedAgent || !selectedMap) return;
+        const selection = {
+            agent: {
+                name: selectedAgent.displayName,
+                uuid: selectedAgent.uuid
+            },
+            map: {
+                name: selectedMap.displayName,
+                uuid: selectedMap.uuid
+            }
+        };
 
-    const selection = {
+        sessionStorage.setItem("valorantSelection", JSON.stringify(selection));
+        window.location.href = "lineups.html";
+    });
+}
 
-        agent: {
-            name: selectedAgent.displayName,
-            uuid: selectedAgent.uuid
-        },
-
-        map: {
-            name: selectedMap.displayName,
-            uuid: selectedMap.uuid
-        }
-
-    };
-
-    sessionStorage.setItem(
-        "valorantSelection",
-        JSON.stringify(selection)
-    );
-
-    window.location.href = "lineups.html";
-
-});
-
-// DEMARRER
-
+// DÉMARRER
 loadData();
