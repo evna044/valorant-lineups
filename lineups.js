@@ -1,10 +1,10 @@
 // =========================================================================
-// LISTE DES PLANT SPOTS PRÉ-DÉFINIS (AJOUTER DE NOUVELLES OPTIONS ICI)
+// LISTE DES PLANT SPOTS PRÉ-DÉFINIS
 // =========================================================================
 const PLANT_SPOTS_LIST = [
     "Default",
     "Open",
-    "Boxes",
+    "Triple Boxes",
     "Site",
     "Under",
     "Bridge",
@@ -35,22 +35,7 @@ if (!selectionData) {
     const imageInput = document.getElementById("lineupImage");
     const videoInput = document.getElementById("lineupVideo");
 
-    const categoryGroup = document.getElementById("lineupCategoryGroup");
-
-    // Une lineup peut avoir plusieurs catégories (stockées séparées par des virgules)
-    function parseCategories(value) {
-        return (value || "Autre").split(",").map(c => c.trim()).filter(Boolean);
-    }
-
-    function getFormCategories() {
-        return [...categoryGroup.querySelectorAll("input:checked")].map(i => i.value);
-    }
-
-    function setFormCategories(list) {
-        categoryGroup.querySelectorAll("input").forEach(i => {
-            i.checked = list.includes(i.value);
-        });
-    }
+    const categorySelect = document.getElementById("lineupCategory");
     const postPlantFormFields = document.getElementById("postPlantFormFields");
     const lineupSiteInput = document.getElementById("lineupSite");
     const lineupPlantSpotSelect = document.getElementById("lineupPlantSpot");
@@ -67,9 +52,7 @@ if (!selectionData) {
     let activeCategories = [];
     let isAdmin = false;
 
-    // --------------------------------------------------
-    // INITIALISATION DES MENUS DÉROULANTS PLANT SPOTS
-    // --------------------------------------------------
+    // Initialisation des selects plant spots
     function initPlantSpotSelects() {
         if (lineupPlantSpotSelect) {
             lineupPlantSpotSelect.innerHTML = '<option value="">-- Choisir une plant --</option>';
@@ -94,9 +77,9 @@ if (!selectionData) {
 
     initPlantSpotSelects();
 
-    // Affichage contextuel dans le formulaire
     function updateFormCategoryFields() {
-        if (getFormCategories().includes("Post-plant")) {
+        const selectedCat = categorySelect.value;
+        if (selectedCat === "Post-plant") {
             postPlantFormFields.hidden = false;
         } else {
             postPlantFormFields.hidden = true;
@@ -105,24 +88,19 @@ if (!selectionData) {
         }
     }
 
-    categoryGroup.addEventListener("change", updateFormCategoryFields);
+    categorySelect.addEventListener("change", updateFormCategoryFields);
 
-    // --------------------------------------------------
-    // INTERFACE DE CONNEXION ADMIN
-    // --------------------------------------------------
-
+    // Panneau Admin
     const loginPanel = document.createElement("section");
     loginPanel.className = "admin-login";
     loginPanel.innerHTML = `
         <h2>ESPACE ADMINISTRATEUR</h2>
         <p id="authStatus">Connecte-toi pour gérer les lineups.</p>
-
         <form id="loginForm">
             <input type="email" id="adminEmail" placeholder="Adresse e-mail" required>
             <input type="password" id="adminPassword" placeholder="Mot de passe" required>
             <button type="submit">SE CONNECTER</button>
         </form>
-
         <button type="button" id="logoutButton" hidden>SE DÉCONNECTER</button>
     `;
 
@@ -140,9 +118,7 @@ if (!selectionData) {
 
         if (user) {
             const { data, error } = await supabaseClient.rpc("is_admin");
-            if (error) {
-                console.error("Erreur de vérification admin :", error);
-            } else {
+            if (!error) {
                 isAdmin = data === true;
             }
         }
@@ -159,11 +135,8 @@ if (!selectionData) {
         }
 
         form.hidden = !isAdmin;
-
         const importLabel = document.querySelector('label[for="importInput"]');
-        if (importLabel) {
-            importLabel.hidden = !isAdmin;
-        }
+        if (importLabel) importLabel.hidden = !isAdmin;
 
         renderLineups();
     }
@@ -175,18 +148,13 @@ if (!selectionData) {
 
         authStatus.textContent = "Connexion en cours...";
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
         if (error) {
             authStatus.textContent = "Connexion impossible : " + error.message;
         }
     });
 
     logoutButton.addEventListener("click", async () => {
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) {
-            alert("Erreur lors de la déconnexion.");
-            return;
-        }
+        await supabaseClient.auth.signOut();
         editingLineupId = null;
         form.reset();
         updateFormCategoryFields();
@@ -197,10 +165,6 @@ if (!selectionData) {
             setTimeout(() => checkAdmin(session), 0);
         }
     });
-
-    // --------------------------------------------------
-    // GESTION DES FICHIERS MÉDIAS
-    // --------------------------------------------------
 
     imageInput.addEventListener("change", () => {
         document.getElementById("imageFileName").textContent = imageInput.files[0]?.name || "Aucune image choisie";
@@ -229,33 +193,18 @@ if (!selectionData) {
         const index = url.indexOf(marker);
         if (index === -1) return;
         const path = decodeURIComponent(url.substring(index + marker.length));
-        const { error } = await supabaseClient.storage.from("lineup-media").remove([path]);
-        if (error) console.error("Impossible de supprimer le média :", error);
+        await supabaseClient.storage.from("lineup-media").remove([path]);
     }
-
-    // --------------------------------------------------
-    // AJOUT & MODIFICATION
-    // --------------------------------------------------
 
     form.addEventListener("submit", async event => {
         event.preventDefault();
-        if (!isAdmin) {
-            alert("Tu dois être administrateur.");
-            return;
-        }
+        if (!isAdmin) return;
 
         const title = document.getElementById("lineupTitle").value.trim();
         const description = document.getElementById("lineupDescription").value.trim();
-        const categories = getFormCategories();
-        if (categories.length === 0) {
-            alert("Choisis au moins une catégorie.");
-            return;
-        }
-        const category = categories.join(",");
-        const isPostPlant = categories.includes("Post-plant");
-
-        const site = isPostPlant ? lineupSiteInput.value : null;
-        const plant_spot = isPostPlant ? lineupPlantSpotSelect.value : null;
+        const category = document.getElementById("lineupCategory").value;
+        const site = category === "Post-plant" ? lineupSiteInput.value : null;
+        const plant_spot = category === "Post-plant" ? lineupPlantSpotSelect.value : null;
 
         if (!title) return;
 
@@ -263,20 +212,15 @@ if (!selectionData) {
         submitButton.disabled = true;
 
         try {
-            const existingLineup = allLineups.find(lineup => lineup.id === editingLineupId);
-
+            const existingLineup = allLineups.find(l => l.id === editingLineupId);
             let imageUrl = existingLineup?.image_url || null;
             let videoUrl = existingLineup?.video_url || null;
 
             const oldImageUrl = imageUrl;
             const oldVideoUrl = videoUrl;
 
-            if (imageInput.files[0]) {
-                imageUrl = await uploadMedia(imageInput.files[0], "images");
-            }
-            if (videoInput.files[0]) {
-                videoUrl = await uploadMedia(videoInput.files[0], "videos");
-            }
+            if (imageInput.files[0]) imageUrl = await uploadMedia(imageInput.files[0], "images");
+            if (videoInput.files[0]) videoUrl = await uploadMedia(videoInput.files[0], "videos");
 
             const lineup = {
                 agent: selection.agent.name,
@@ -290,12 +234,9 @@ if (!selectionData) {
                 video_url: videoUrl
             };
 
-            let result;
-            if (editingLineupId) {
-                result = await supabaseClient.from("lineups").update(lineup).eq("id", editingLineupId);
-            } else {
-                result = await supabaseClient.from("lineups").insert([lineup]);
-            }
+            let result = editingLineupId
+                ? await supabaseClient.from("lineups").update(lineup).eq("id", editingLineupId)
+                : await supabaseClient.from("lineups").insert([lineup]);
 
             if (result.error) throw result.error;
 
@@ -311,7 +252,6 @@ if (!selectionData) {
             submitButton.textContent = "ENREGISTRER LA LINEUP →";
 
             await renderLineups();
-
         } catch (error) {
             console.error(error);
             alert("Erreur lors de l'enregistrement : " + error.message);
@@ -319,10 +259,6 @@ if (!selectionData) {
             submitButton.disabled = false;
         }
     });
-
-    // --------------------------------------------------
-    // AFFICHAGE ET FILTRAGE DES LINEUPS
-    // --------------------------------------------------
 
     async function renderLineups() {
         const { data, error } = await supabaseClient
@@ -333,32 +269,23 @@ if (!selectionData) {
             .order("created_at", { ascending: false });
 
         if (error) {
-            console.error(error);
             container.textContent = "Impossible de charger les lineups.";
             return;
         }
 
         allLineups = data || [];
-
         const selectedSite = filterSiteSelect.value;
         const selectedPlantSpot = filterPlantSpotSelect.value;
 
         const filteredLineups = allLineups.filter(lineup => {
-            const cats = parseCategories(lineup.category);
-            const categoryMatches = activeCategories.length === 0 || cats.includes(activeCategories[0]);
-
+            const cat = lineup.category || "Autre";
+            const categoryMatches = activeCategories.length === 0 || activeCategories.includes(cat);
             if (!categoryMatches) return false;
 
-            // Si "Post-plant" est actif, on applique les sous-filtres Site et Plant Spot
             if (activeCategories.includes("Post-plant")) {
-                if (selectedSite !== "Tous" && lineup.site !== selectedSite) {
-                    return false;
-                }
-                if (selectedPlantSpot !== "Toutes" && lineup.plant_spot !== selectedPlantSpot) {
-                    return false;
-                }
+                if (selectedSite !== "Tous" && lineup.site !== selectedSite) return false;
+                if (selectedPlantSpot !== "Toutes" && lineup.plant_spot !== selectedPlantSpot) return false;
             }
-
             return true;
         });
 
@@ -378,10 +305,8 @@ if (!selectionData) {
 
             const category = document.createElement("span");
             category.className = "lineup-category";
-            
-            const lineupCats = parseCategories(lineup.category);
-            let categoryText = lineupCats.join(" • ");
-            if (lineupCats.includes("Post-plant") && (lineup.site || lineup.plant_spot)) {
+            let categoryText = lineup.category || "Autre";
+            if (lineup.category === "Post-plant" && (lineup.site || lineup.plant_spot)) {
                 const details = [lineup.site ? `Site ${lineup.site}` : "", lineup.plant_spot].filter(Boolean).join(" • ");
                 categoryText += ` (${details})`;
             }
@@ -417,53 +342,38 @@ if (!selectionData) {
                 editButton.type = "button";
                 editButton.className = "edit-button";
                 editButton.textContent = "MODIFIER";
-
                 editButton.addEventListener("click", () => {
                     editingLineupId = lineup.id;
                     document.getElementById("lineupTitle").value = lineup.title;
                     document.getElementById("lineupDescription").value = lineup.description || "";
-                    setFormCategories(parseCategories(lineup.category));
-
+                    document.getElementById("lineupCategory").value = lineup.category || "Autre";
                     updateFormCategoryFields();
 
-                    if (parseCategories(lineup.category).includes("Post-plant")) {
+                    if (lineup.category === "Post-plant") {
                         lineupSiteInput.value = lineup.site || "";
                         lineupPlantSpotSelect.value = lineup.plant_spot || "";
                     }
 
                     imageInput.value = "";
                     videoInput.value = "";
-
                     document.getElementById("imageFileName").textContent = lineup.image_url ? "Image déjà enregistrée" : "Aucune image choisie";
                     document.getElementById("videoFileName").textContent = lineup.video_url ? "Vidéo déjà enregistrée" : "Aucune vidéo choisie";
-
                     form.querySelector("button[type='submit']").textContent = "ENREGISTRER LES MODIFICATIONS →";
                     form.scrollIntoView({ behavior: "smooth", block: "center" });
                 });
-
                 card.appendChild(editButton);
 
                 const deleteButton = document.createElement("button");
                 deleteButton.type = "button";
                 deleteButton.className = "delete-button";
                 deleteButton.textContent = "SUPPRIMER";
-
                 deleteButton.addEventListener("click", async () => {
                     if (!confirm("Supprimer cette lineup ?")) return;
-
-                    const { error } = await supabaseClient.from("lineups").delete().eq("id", lineup.id);
-
-                    if (error) {
-                        alert("Erreur lors de la suppression : " + error.message);
-                        return;
-                    }
-
+                    await supabaseClient.from("lineups").delete().eq("id", lineup.id);
                     await deleteMedia(lineup.image_url);
                     await deleteMedia(lineup.video_url);
-
                     await renderLineups();
                 });
-
                 card.appendChild(deleteButton);
             }
 
@@ -471,33 +381,23 @@ if (!selectionData) {
         });
     }
 
-    // --------------------------------------------------
-    // FILTRES INTERACTIFS
-    // --------------------------------------------------
-
     if (categoryFilters) {
         categoryFilters.addEventListener("click", event => {
             const button = event.target.closest(".category-filter");
             if (!button) return;
 
             const category = button.dataset.category;
-
             if (category === "Toutes") {
                 activeCategories = [];
-            } else if (activeCategories[0] === category) {
-                // re-clic sur le filtre actif : retour à "Toutes"
-                activeCategories = [];
+            } else if (activeCategories.includes(category)) {
+                activeCategories = activeCategories.filter(item => item !== category);
             } else {
-                // un seul filtre à la fois
-                activeCategories = [category];
+                activeCategories.push(category);
             }
 
             document.querySelectorAll(".category-filter").forEach(filter => {
-                const filterCategory = filter.dataset.category;
-                filter.classList.toggle(
-                    "active",
-                    filterCategory === "Toutes" ? activeCategories.length === 0 : activeCategories.includes(filterCategory)
-                );
+                const fc = filter.dataset.category;
+                filter.classList.toggle("active", fc === "Toutes" ? activeCategories.length === 0 : activeCategories.includes(fc));
             });
 
             if (activeCategories.includes("Post-plant")) {
@@ -515,167 +415,20 @@ if (!selectionData) {
     filterSiteSelect.addEventListener("change", renderLineups);
     filterPlantSpotSelect.addEventListener("change", renderLineups);
 
-    // --------------------------------------------------
-    // ZOOM IMAGE
-    // --------------------------------------------------
-
     function openImageViewer(src) {
         const viewer = document.createElement("div");
         viewer.className = "image-viewer";
         const image = document.createElement("img");
         image.src = src;
-        image.alt = "Image agrandie";
-
         viewer.appendChild(image);
         document.body.appendChild(viewer);
 
-        const closeViewer = () => {
-            viewer.remove();
-            document.removeEventListener("keydown", closeOnEscape);
-        };
-
-        const closeOnEscape = event => {
-            if (event.key === "Escape") closeViewer();
-        };
-
+        const closeViewer = () => viewer.remove();
         viewer.addEventListener("click", closeViewer);
-        document.addEventListener("keydown", closeOnEscape);
+        document.addEventListener("keydown", e => { if (e.key === "Escape") closeViewer(); });
     }
 
-    // --------------------------------------------------
-    // EXPORT ET IMPORT JSON
-    // --------------------------------------------------
-
-    async function convertUrlToBase64(url) {
-        if (!url) return null;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Impossible de récupérer un média.");
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({
-                name: url.split("/").pop().split("?")[0],
-                type: blob.type,
-                data: reader.result
-            });
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-    }
-
-    function convertBase64ToFile(fileData) {
-        if (!fileData?.data || !fileData?.name) return null;
-        const parts = fileData.data.split(",");
-        const mimeMatch = parts[0].match(/:(.*?);/);
-        const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
-        const binary = atob(parts[1]);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
-        return new File([bytes], fileData.name, { type: fileData.type || mime });
-    }
-
-    exportButton.addEventListener("click", async () => {
-        try {
-            const exported = await Promise.all(
-                allLineups.map(async lineup => ({
-                    agent: lineup.agent,
-                    map: lineup.map,
-                    title: lineup.title,
-                    description: lineup.description || "",
-                    category: lineup.category || "Autre",
-                    site: lineup.site || null,
-                    plantSpot: lineup.plant_spot || null,
-                    createdAt: lineup.created_at,
-                    image: await convertUrlToBase64(lineup.image_url),
-                    video: await convertUrlToBase64(lineup.video_url)
-                }))
-            );
-
-            const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `lineups-${selection.agent.name}-${selection.map.name}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error(error);
-            alert("Erreur lors de l'exportation : " + error.message);
-        }
-    });
-
-    importInput.addEventListener("change", async event => {
-        if (!isAdmin) {
-            alert("Seuls les administrateurs peuvent importer des lineups.");
-            event.target.value = "";
-            return;
-        }
-
-        const file = event.target.files[0];
-        if (!file) return;
-
-        try {
-            const imported = JSON.parse(await file.text());
-            if (!Array.isArray(imported)) throw new Error("Format JSON invalide.");
-
-            const selectedLineups = imported.filter(lineup =>
-                lineup.agent === selection.agent.name &&
-                lineup.map === selection.map.name
-            );
-
-            let importedCount = 0;
-
-            for (const lineup of selectedLineups) {
-                const alreadyExists = allLineups.some(l =>
-                    l.title === lineup.title &&
-                    l.agent === selection.agent.name &&
-                    l.map === selection.map.name
-                );
-
-                if (alreadyExists) continue;
-
-                const imageFile = convertBase64ToFile(lineup.image);
-                const videoFile = convertBase64ToFile(lineup.video);
-
-                const imageUrl = imageFile ? await uploadMedia(imageFile, "images") : null;
-                const videoUrl = videoFile ? await uploadMedia(videoFile, "videos") : null;
-
-                const { error } = await supabaseClient
-                    .from("lineups")
-                    .insert([{
-                        agent: selection.agent.name,
-                        map: selection.map.name,
-                        title: lineup.title,
-                        description: lineup.description || "",
-                        category: lineup.category || "Autre",
-                        site: lineup.site || lineup.siteLocation || null,
-                        plant_spot: lineup.plantSpot || lineup.plant_spot || null,
-                        image_url: imageUrl,
-                        video_url: videoUrl
-                    }]);
-
-                if (error) throw error;
-                importedCount++;
-            }
-
-            alert(`${importedCount} lineup(s) importée(s).`);
-            await renderLineups();
-
-        } catch (error) {
-            console.error(error);
-            alert("Erreur lors de l'importation : " + error.message);
-        } finally {
-            event.target.value = "";
-        }
-    });
-
-    supabaseClient.auth.getSession().then(({ data, error }) => {
-        if (error) {
-            console.error("Erreur de session :", error);
-            return;
-        }
+    supabaseClient.auth.getSession().then(({ data }) => {
         checkAdmin(data.session);
     });
 }
