@@ -438,7 +438,8 @@ footer {
     background-color: #111419;
     letter-spacing: 1px;
 }
-/* --- GRILLE DES AGENTS --- */
+
+/* GRILLE DES AGENTS */
 .agents-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -492,7 +493,7 @@ footer {
     margin-top: 2px;
 }
 
-/* --- GRILLE DES MAPS --- */
+/* GRILLE DES MAPS */
 .maps-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
