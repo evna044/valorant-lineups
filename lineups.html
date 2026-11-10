@@ -30,7 +30,7 @@
     <!-- INFORMATIONS DE SELECTION -->
     <section class="current-selection">
         <div>
-            <p class="card-kicker">AGENT</p>
+            <p class="card-kicker">AGENT / CATÉGORIE</p>
             <h2 id="currentAgent">-</h2>
         </div>
         <div>
@@ -50,7 +50,7 @@
             <input
                 type="text"
                 id="lineupTitle"
-                placeholder="Ex : Flèche de reconnaissance A"
+                placeholder="Ex : Travers Odin A Main"
                 required
             >
 
@@ -60,14 +60,15 @@
                 placeholder="Explique comment réaliser cette lineup..."
             ></textarea>
 
-            <label>CATÉGORIES (PLUSIEURS POSSIBLES)</label>
-            <div id="lineupCategoryGroup" class="category-checkboxes">
-                <label class="category-check"><input type="checkbox" value="Attaque"> Attaque</label>
-                <label class="category-check"><input type="checkbox" value="Defense"> Defense</label>
-                <label class="category-check"><input type="checkbox" value="Post-plant"> Post-plant</label>
-                <label class="category-check"><input type="checkbox" value="Retake"> Retake</label>
-                <label class="category-check"><input type="checkbox" value="Autre"> Autre</label>
-            </div>
+            <label for="lineupCategory">CATÉGORIE</label>
+            <select id="lineupCategory" required>
+                <option value="Attaque">Attaque</option>
+                <option value="Defense">Defense</option>
+                <option value="Post-plant">Post-plant</option>
+                <option value="Retake">Retake</option>
+                <option value="Wallbang">Wallbang (Travers)</option>
+                <option value="Autre">Autre</option>
+            </select>
 
             <!-- CHAMPS CONTEXTUELS POST-PLANT -->
             <div id="postPlantFormFields" class="post-plant-fields" hidden>
@@ -140,6 +141,9 @@
             </button>
             <button type="button" class="category-filter" data-category="Retake">
                 RETAKE
+            </button>
+            <button type="button" class="category-filter" data-category="Wallbang">
+                WALLBANG
             </button>
             <button type="button" class="category-filter" data-category="Autre">
                 AUTRE
