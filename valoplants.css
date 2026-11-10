@@ -214,8 +214,6 @@
     background: #0b121a;
 }
 
-/* Aperçu des nouvelles images */
-
 .vp-new-images {
     display: flex;
     flex-wrap: wrap;
@@ -243,8 +241,6 @@
     font-size: 10px;
     overflow-wrap: anywhere;
 }
-
-/* Boutons */
 
 .vp-detail-button,
 .vp-external,
@@ -291,14 +287,10 @@
     color: white;
 }
 
-/* Boutons administrateur */
-
 .vp-strategy-card > .edit-button,
 .vp-strategy-card > .delete-button {
     margin: 5px 12px;
 }
-
-/* Version mobile */
 
 @media (max-width: 620px) {
     .vp-strategy-grid,
