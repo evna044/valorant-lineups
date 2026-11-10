@@ -23,108 +23,26 @@
         <p class="subtitle">Sélectionne une configuration pour accéder à tes lineups enregistrées.</p>
     </section>
 
-    <!-- SECTION 1 : SELECTION DE L'AGENT OU OPTION SPECIALE -->
+    <!-- SECTION 1 : SELECTION DE L'AGENT -->
     <section class="selection-section">
         <div class="section-heading">
             <h2>1. SÉLECTIONNER UN <span>AGENT / CATÉGORIE</span></h2>
         </div>
 
-        <div id="agentsGrid" class="agents-grid">
-            <!-- OPTION SPÉCIALE : WALLBANG / TRAVERS -->
-            <div class="agent-card" data-agent="Wallbang" data-name="Wallbang (Travers)">
-                <img src="images/odin.png" alt="Wallbang Odin" class="agent-portrait">
-                <div class="agent-info">
-                    <h3>WALLBANG</h3>
-                    <p>Tirs à forte pénétration</p>
-                </div>
-            </div>
-
-            <!-- AGENTS -->
-            <div class="agent-card" data-agent="Brimstone" data-name="Brimstone">
-                <img src="images/brimstone.png" alt="Brimstone" class="agent-portrait">
-                <div class="agent-info"><h3>BRIMSTONE</h3><p>Contrôleur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Sova" data-name="Sova">
-                <img src="images/sova.png" alt="Sova" class="agent-portrait">
-                <div class="agent-info"><h3>SOVA</h3><p>Initiateur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Viper" data-name="Viper">
-                <img src="images/viper.png" alt="Viper" class="agent-portrait">
-                <div class="agent-info"><h3>VIPER</h3><p>Contrôleur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Killjoy" data-name="Killjoy">
-                <img src="images/killjoy.png" alt="Killjoy" class="agent-portrait">
-                <div class="agent-info"><h3>KILLJOY</h3><p>Sentinelle</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Fade" data-name="Fade">
-                <img src="images/fade.png" alt="Fade" class="agent-portrait">
-                <div class="agent-info"><h3>FADE</h3><p>Initiateur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Omen" data-name="Omen">
-                <img src="images/omen.png" alt="Omen" class="agent-portrait">
-                <div class="agent-info"><h3>OMEN</h3><p>Contrôleur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Sage" data-name="Sage">
-                <img src="images/sage.png" alt="Sage" class="agent-portrait">
-                <div class="agent-info"><h3>SAGE</h3><p>Sentinelle</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Syk" data-name="Skye">
-                <img src="images/skye.png" alt="Skye" class="agent-portrait">
-                <div class="agent-info"><h3>SKYE</h3><p>Initiateur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Astra" data-name="Astra">
-                <img src="images/astra.png" alt="Astra" class="agent-portrait">
-                <div class="agent-info"><h3>ASTRA</h3><p>Contrôleur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="KAY/O" data-name="KAY/O">
-                <img src="images/kayo.png" alt="KAY/O" class="agent-portrait">
-                <div class="agent-info"><h3>KAY/O</h3><p>Initiateur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Chamber" data-name="Chamber">
-                <img src="images/chamber.png" alt="Chamber" class="agent-portrait">
-                <div class="agent-info"><h3>CHAMBER</h3><p>Sentinelle</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Neon" data-name="Neon">
-                <img src="images/neon.png" alt="Neon" class="agent-portrait">
-                <div class="agent-info"><h3>NEON</h3><p>Duelliste</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Harbor" data-name="Harbor">
-                <img src="images/harbor.png" alt="Harbor" class="agent-portrait">
-                <div class="agent-info"><h3>HARBOR</h3><p>Contrôleur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Gekko" data-name="Gekko">
-                <img src="images/gekko.png" alt="Gekko" class="agent-portrait">
-                <div class="agent-info"><h3>GEKKO</h3><p>Initiateur</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Deadlock" data-name="Deadlock">
-                <img src="images/deadlock.png" alt="Deadlock" class="agent-portrait">
-                <div class="agent-info"><h3>DEADLOCK</h3><p>Sentinelle</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Iso" data-name="Iso">
-                <img src="images/iso.png" alt="Iso" class="agent-portrait">
-                <div class="agent-info"><h3>ISO</h3><p>Duelliste</p></div>
-            </div>
-
-            <div class="agent-card" data-agent="Clove" data-name="Clove">
-                <img src="images/clove.png" alt="Clove" class="agent-portrait">
-                <div class="agent-info"><h3>CLOVE</h3><p>Contrôleur</p></div>
-            </div>
+        <!-- Filtres par rôle -->
+        <div id="roleFilters" class="category-filters">
+            <button type="button" class="category-filter filter active" data-role="Tous">TOUS</button>
+            <button type="button" class="category-filter filter" data-role="Duelliste">DUELLISTE</button>
+            <button type="button" class="category-filter filter" data-role="Initiateur">INITIATEUR</button>
+            <button type="button" class="category-filter filter" data-role="Contrôleur">CONTRÔLEUR</button>
+            <button type="button" class="category-filter filter" data-role="Sentinelle">SENTINELLE</button>
         </div>
+
+        <div id="agentGrid" class="agents-grid">
+            Chargement des agents...
+        </div>
+        <p id="agentCount" class="subtitle"></p>
+        <p id="agentInfo" class="subtitle"></p>
     </section>
 
     <!-- SECTION 2 : SELECTION DE LA MAP -->
@@ -133,31 +51,17 @@
             <h2>2. SÉLECTIONNER UNE <span>MAP</span></h2>
         </div>
 
-        <div id="mapsGrid" class="maps-grid">
-            <div class="map-card" data-map="Ascent" data-name="Ascent"><div class="map-info"><h3>ASCENT</h3></div></div>
-            <div class="map-card" data-map="Bind" data-name="Bind"><div class="map-info"><h3>BIND</h3></div></div>
-            <div class="map-card" data-map="Haven" data-name="Haven"><div class="map-info"><h3>HAVEN</h3></div></div>
-            <div class="map-card" data-map="Split" data-name="Split"><div class="map-info"><h3>SPLIT</h3></div></div>
-            <div class="map-card" data-map="Lotus" data-name="Lotus"><div class="map-info"><h3>LOTUS</h3></div></div>
-            <div class="map-card" data-map="Sunset" data-name="Sunset"><div class="map-info"><h3>SUNSET</h3></div></div>
-            <div class="map-card" data-map="Breeze" data-name="Breeze"><div class="map-info"><h3>BREEZE</h3></div></div>
-            <div class="map-card" data-map="Icebox" data-name="Icebox"><div class="map-info"><h3>ICEBOX</h3></div></div>
-            <div class="map-card" data-map="Pearl" data-name="Pearl"><div class="map-info"><h3>PEARL</h3></div></div>
-            <div class="map-card" data-map="Fracture" data-name="Fracture"><div class="map-info"><h3>FRACTURE</h3></div></div>
+        <div class="map-picker">
+            <button type="button" id="mapTrigger" class="validate-button" aria-expanded="false" style="background:#181d24; border:1px solid #383e45; width:100%; text-align:left;">
+                <span id="mapTriggerContent">CHOISIR UNE MAP ⌄</span>
+            </button>
+            <div id="mapMenu" hidden style="margin-top:10px;">
+                <div id="mapOptions" class="maps-grid"></div>
+            </div>
         </div>
+        <p id="mapInfo" class="subtitle" style="margin-top:10px;"></p>
     </section>
 
     <!-- BOUTON DE CONFIRMATION -->
     <div class="action-container">
-        <button id="confirmSelection" class="validate-button" disabled>
-            AFFICHER LES LINEUPS →
-        </button>
-    </div>
-
-</main>
-
-<footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
-
-<script src="index.js"></script>
-</body>
-</html>
+        <p id="validationMessage" class="subtitle" style="margin-bottom:10px;">Sélection
