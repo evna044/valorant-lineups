@@ -1,4 +1,3 @@
-// Liste des maps standard (partagée entre index.html et valoplants.html)
 const STANDARD_MAPS = [
     "Abyss",
     "Ascent",
