@@ -52,7 +52,6 @@ async function init() {
         renderMaps();
         renderAgents();
 
-        // MODIFICATION ICI : On s'assure d'attendre la session de façon sécurisée
         const { data: { session }, error: sessionError } = await db.auth.getSession();
         if (sessionError) console.error(sessionError);
         
@@ -60,26 +59,21 @@ async function init() {
 
     } catch (e) {
         console.error(e);
-        $("vpMapGrid").textContent = "Impossible de charger les maps.";
+        if ($("vpMapGrid")) $("vpMapGrid").textContent = "Impossible de charger les maps.";
     }
 }
 
 // AFFICHER LES MAPS
 
 function renderMaps() {
-
     const root = $("vpMapGrid");
+    if (!root) return;
     root.innerHTML = "";
 
     maps.forEach(m => {
-
         const b = document.createElement("button");
-
         b.type = "button";
-
-        b.className =
-            "vp-map-card" +
-            (map?.uuid === m.uuid ? " active" : "");
+        b.className = "vp-map-card" + (map?.uuid === m.uuid ? " active" : "");
 
         const i = document.createElement("img");
         i.src = m.splash;
@@ -89,63 +83,42 @@ function renderMaps() {
         s.textContent = m.displayName.toUpperCase();
 
         b.append(i, s);
-
         b.onclick = () => selectMap(m);
-
         root.append(b);
-
     });
-
 }
 
 // SÉLECTIONNER UNE MAP
 
 async function selectMap(m) {
-
-    // Annule toute édition en cours (évite de déplacer une stratégie sur une autre map)
     resetForm();
-
     map = m;
     filter = "Toutes";
 
     $("vpResultsSection").hidden = false;
+    $("vpSelectedMapTitle").textContent = "STRATÉGIES / " + m.displayName.toUpperCase();
 
-    $("vpSelectedMapTitle").textContent =
-        "STRATÉGIES / " + m.displayName.toUpperCase();
-
-    document.querySelectorAll(
-        "#vpCategoryFilters button"
-    ).forEach(b => {
-        b.classList.toggle(
-            "active",
-            b.dataset.category === "Toutes"
-        );
+    document.querySelectorAll("#vpCategoryFilters button").forEach(b => {
+        b.classList.toggle("active", b.dataset.category === "Toutes");
     });
 
     renderMaps();
 
     try {
-
         await Promise.all([
             loadStrategies(),
             loadLineups()
         ]);
-
         renderLineupsPicker();
-
     } catch (error) {
-
         console.error(error);
         alert("Erreur de chargement : " + error.message);
-
     }
-
 }
 
 // CHARGER LES LINEUPS DE LA MAP
 
 async function loadLineups() {
-
     const { data, error } = await db
         .from("lineups")
         .select("*")
@@ -153,15 +126,12 @@ async function loadLineups() {
         .order("created_at", { ascending: false });
 
     if (error) throw error;
-
     lineups = data || [];
-
 }
 
 // CHARGER LES STRATÉGIES
 
 async function loadStrategies() {
-
     const { data, error } = await db
         .from("valoplants")
         .select("*")
@@ -170,29 +140,18 @@ async function loadStrategies() {
 
     if (error) {
         console.error(error);
-        $("vpStrategyGrid").textContent =
-            "Erreur de chargement.";
+        $("vpStrategyGrid").textContent = "Erreur de chargement.";
         return;
     }
 
     const ids = (data || []).map(x => x.id);
-
     let ims = [];
     let links = [];
 
     if (ids.length) {
-
         const [a, b] = await Promise.all([
-
-            db.from("valoplant_images")
-                .select("*")
-                .in("valoplant_id", ids)
-                .order("position"),
-
-            db.from("valoplant_lineups")
-                .select("*")
-                .in("valoplant_id", ids)
-
+            db.from("valoplant_images").select("*").in("valoplant_id", ids).order("position"),
+            db.from("valoplant_lineups").select("*").in("valoplant_id", ids)
         ]);
 
         if (a.error) throw a.error;
@@ -200,49 +159,33 @@ async function loadStrategies() {
 
         ims = a.data || [];
         links = b.data || [];
-
     }
 
     strategies = (data || []).map(s => ({
-
         ...s,
-
-        images: ims.filter(i =>
-            i.valoplant_id === s.id
-        ),
-
-        lineupIds: links
-            .filter(l => l.valoplant_id === s.id)
-            .map(l => l.lineup_id)
-
+        images: ims.filter(i => i.valoplant_id === s.id),
+        lineupIds: links.filter(l => l.valoplant_id === s.id).map(l => l.lineup_id)
     }));
 
     renderStrategies();
-
 }
 
 // AFFICHER LES STRATÉGIES
 
 function renderStrategies() {
-
     const root = $("vpStrategyGrid");
+    if (!root) return;
     root.innerHTML = "";
 
-    const shown = strategies.filter(s =>
-        filter === "Toutes" || s.category === filter
-    );
-
-    $("vpStrategyCount").textContent =
-        shown.length + " STRATÉGIE(S)";
+    const shown = strategies.filter(s => filter === "Toutes" || s.category === filter);
+    $("vpStrategyCount").textContent = shown.length + " STRATÉGIE(S)";
 
     if (!shown.length) {
-        root.textContent =
-            "Aucune stratégie pour cette map.";
+        root.textContent = "Aucune stratégie pour cette map.";
         return;
     }
 
     shown.forEach(s => {
-
         const c = document.createElement("article");
         c.className = "vp-strategy-card";
 
@@ -268,7 +211,6 @@ function renderStrategies() {
         c.append(img, h, tag, p, view);
 
         if (admin) {
-
             const edit = document.createElement("button");
             edit.type = "button";
             edit.className = "edit-button";
@@ -282,24 +224,20 @@ function renderStrategies() {
             del.onclick = () => deleteStrategy(s);
 
             c.append(edit, del);
-
         }
 
         root.append(c);
-
     });
-
 }
 
 // AFFICHER LES AGENTS
 
 function renderAgents(selected = []) {
-
     const root = $("vpAgents");
+    if (!root) return;
     root.innerHTML = "";
 
     agents.forEach(a => {
-
         const l = document.createElement("label");
         l.className = "vp-choice";
 
@@ -308,8 +246,6 @@ function renderAgents(selected = []) {
         cb.name = "vpAgent";
         cb.value = a.displayName;
         cb.checked = selected.includes(a.displayName);
-
-        // IMPORTANT : ne pas passer l'événement comme paramètre
         cb.onchange = () => renderLineupsPicker();
 
         const im = document.createElement("img");
@@ -321,51 +257,34 @@ function renderAgents(selected = []) {
 
         l.append(cb, im, t);
         root.append(l);
-
     });
-
 }
 
-// AGENTS SÉLECTIONNÉS
-
 function selectedAgents() {
-
-    return [
-        ...document.querySelectorAll(
-            'input[name="vpAgent"]:checked'
-        )
-    ].map(x => x.value);
-
+    return [...document.querySelectorAll('input[name="vpAgent"]:checked')].map(x => x.value);
 }
 
 // FILTRER LES LINEUPS
-// Les lineups cochées sont mémorisées dans un Set :
-// elles ne sont plus perdues quand le filtre par agent change.
 
 function renderLineupsPicker(selected = null) {
-
     const root = $("vpLineups");
+    if (!root) return;
 
     if (Array.isArray(selected)) {
         checkedLineups = new Set(selected);
     }
 
     const names = selectedAgents();
-
-    const list = names.length
-        ? lineups.filter(l => names.includes(l.agent))
-        : lineups;
+    const list = names.length ? lineups.filter(l => names.includes(l.agent)) : lineups;
 
     root.innerHTML = "";
 
     if (!list.length) {
-        root.textContent =
-            "Aucune lineup correspondante sur cette map.";
+        root.textContent = "Aucune lineup correspondante sur cette map.";
         return;
     }
 
     list.forEach(x => {
-
         const l = document.createElement("label");
         l.className = "vp-choice";
 
@@ -385,25 +304,16 @@ function renderLineupsPicker(selected = null) {
 
         l.append(cb, t);
         root.append(l);
-
     });
-
 }
 
 // MODIFIER UNE STRATÉGIE
 
 function editStrategy(s) {
-
     editing = s.id;
+    oldImages = s.images.map(x => ({ ...x, remove: false }));
 
-    oldImages = s.images.map(x => ({
-        ...x,
-        remove: false
-    }));
-
-    $("vpFormHeading").textContent =
-        "MODIFIER LA STRATÉGIE";
-
+    $("vpFormHeading").textContent = "MODIFIER LA STRATÉGIE";
     $("vpTitle").value = s.title;
     $("vpDescription").value = s.description || "";
     $("vpCategory").value = s.category;
@@ -414,33 +324,23 @@ function editStrategy(s) {
     renderOldImages();
     renderLineupsPicker(s.lineupIds);
 
-    $("vpSave").textContent =
-        "ENREGISTRER LES MODIFICATIONS →";
-
+    $("vpSave").textContent = "ENREGISTRER LES MODIFICATIONS →";
     $("vpCancel").hidden = false;
 
-    editor.scrollIntoView({
-        behavior: "smooth"
-    });
-
+    editor.scrollIntoView({ behavior: "smooth" });
 }
 
-// AFFICHER LES ANCIENNES IMAGES
-
 function renderOldImages() {
-
     const root = $("vpOldImages");
+    if (!root) return;
     root.innerHTML = "";
 
     oldImages.forEach((x, n) => {
-
         const box = document.createElement("div");
-
         const im = document.createElement("img");
         im.src = x.image_url;
 
         const lab = document.createElement("label");
-
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.checked = x.remove;
@@ -449,284 +349,144 @@ function renderOldImages() {
             oldImages[n].remove = cb.checked;
         };
 
-        lab.append(
-            cb,
-            document.createTextNode(" Retirer")
-        );
-
+        lab.append(cb, document.createTextNode(" Retirer"));
         box.append(im, lab);
         root.append(box);
-
     });
-
 }
 
-// RÉINITIALISER LE FORMULAIRE
-
 function resetForm() {
-
     editing = null;
     oldImages = [];
+    if (form) form.reset();
 
-    form.reset();
-
-    $("vpFormHeading").textContent =
-        "CRÉER UNE STRATÉGIE";
-
-    $("vpSave").textContent =
-        "ENREGISTRER LA STRATÉGIE →";
-
+    $("vpFormHeading").textContent = "CRÉER UNE STRATÉGIE";
+    $("vpSave").textContent = "ENREGISTRER LA STRATÉGIE →";
     $("vpCancel").hidden = true;
     $("vpOldImages").innerHTML = "";
     $("vpFileNames").innerHTML = "";
 
     renderAgents();
     renderLineupsPicker([]);
-
 }
-
-// NOM DE FICHIER SÉCURISÉ
 
 function filename(n) {
-
-    return n.replace(
-        /[^a-zA-Z0-9._-]/g,
-        "_"
-    );
-
+    return n.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
-
-// ENVOYER UNE IMAGE
 
 async function upload(file) {
-
-    const path =
-        "valoplants/" +
-        crypto.randomUUID() +
-        "-" +
-        filename(file.name);
-
-    const { error } = await db.storage
-        .from("lineup-media")
-        .upload(path, file);
-
+    const path = "valoplants/" + crypto.randomUUID() + "-" + filename(file.name);
+    const { error } = await db.storage.from("lineup-media").upload(path, file);
     if (error) throw error;
 
-    return db.storage
-        .from("lineup-media")
-        .getPublicUrl(path)
-        .data.publicUrl;
-
+    return db.storage.from("lineup-media").getPublicUrl(path).data.publicUrl;
 }
 
-// SUPPRIMER UNE IMAGE DU STOCKAGE
-
 async function removeMedia(url) {
-
-    const marker =
-        "/storage/v1/object/public/lineup-media/";
-
+    const marker = "/storage/v1/object/public/lineup-media/";
     const i = (url || "").indexOf(marker);
-
     if (i < 0) return;
 
-    const path = decodeURIComponent(
-        url.slice(i + marker.length)
-    );
-
-    const { error } = await db.storage
-        .from("lineup-media")
-        .remove([path]);
-
-    if (error) console.warn(error);
-
+    const path = decodeURIComponent(url.slice(i + marker.length));
+    await db.storage.from("lineup-media").remove([path]);
 }
 
 // ENREGISTRER UNE STRATÉGIE
 
-form.addEventListener("submit", async e => {
+if (form) {
+    form.addEventListener("submit", async e => {
+        e.preventDefault();
+        if (!admin || !map) return alert("Accès administrateur requis.");
 
-    e.preventDefault();
+        const btn = $("vpSave");
+        btn.disabled = true;
 
-    if (!admin || !map) {
-        return alert("Accès administrateur requis.");
-    }
+        try {
+            const payload = {
+                map: map.displayName,
+                title: $("vpTitle").value.trim(),
+                description: $("vpDescription").value.trim(),
+                category: $("vpCategory").value,
+                agents: selectedAgents(),
+                valoplant_url: "https://valoplant.gg/"
+            };
 
-    const btn = $("vpSave");
-    btn.disabled = true;
+            const wasEditing = Boolean(editing);
+            let id = editing;
 
-    try {
+            if (id) {
+                const { error } = await db.from("valoplants").update(payload).eq("id", id);
+                if (error) throw error;
+            } else {
+                const { data, error } = await db.from("valoplants").insert([payload]).select("id").single();
+                if (error) throw error;
+                id = data.id;
+            }
 
-        const payload = {
+            for (const x of oldImages.filter(x => x.remove)) {
+                const { error } = await db.from("valoplant_images").delete().eq("id", x.id);
+                if (error) throw error;
+                await removeMedia(x.image_url);
+            }
 
-            map: map.displayName,
+            const keep = oldImages.filter(x => !x.remove);
+            const rows = [];
 
-            title: $("vpTitle").value.trim(),
+            for (const f of $("vpImages").files) {
+                rows.push({
+                    valoplant_id: id,
+                    image_url: await upload(f),
+                    position: keep.length + rows.length
+                });
+            }
 
-            description:
-                $("vpDescription").value.trim(),
+            if (rows.length) {
+                const { error } = await db.from("valoplant_images").insert(rows);
+                if (error) throw error;
+            }
 
-            category: $("vpCategory").value,
-
-            agents: selectedAgents(),
-
-            valoplant_url: "https://valoplant.gg/"
-
-        };
-
-        const wasEditing = Boolean(editing);
-
-        let id = editing;
-
-        if (id) {
-
-            const { error } = await db
-                .from("valoplants")
-                .update(payload)
-                .eq("id", id);
-
-            if (error) throw error;
-
-        } else {
-
-            const { data, error } = await db
-                .from("valoplants")
-                .insert([payload])
-                .select("id")
-                .single();
-
-            if (error) throw error;
-
-            id = data.id;
-
-        }
-
-        // Supprimer les anciennes images cochées
-
-        for (const x of oldImages.filter(x => x.remove)) {
-
-            const { error } = await db
-                .from("valoplant_images")
-                .delete()
-                .eq("id", x.id);
-
-            if (error) throw error;
-
-            await removeMedia(x.image_url);
-
-        }
-
-        // Envoyer les nouvelles images
-
-        const keep = oldImages.filter(x => !x.remove);
-        const rows = [];
-
-        for (const f of $("vpImages").files) {
-
-            rows.push({
-
-                valoplant_id: id,
-
-                image_url: await upload(f),
-
-                position: keep.length + rows.length
-
-            });
-
-        }
-
-        if (rows.length) {
-
-            const { error } = await db
-                .from("valoplant_images")
-                .insert(rows);
-
-            if (error) throw error;
-
-        }
-
-        // Mettre à jour les lineups associées
-        // (on ajoute d'abord, on retire ensuite : pas de perte en cas d'erreur)
-
-        const ids = [...checkedLineups];
-
-        const { data: existing, error: selError } = await db
-            .from("valoplant_lineups")
-            .select("lineup_id")
-            .eq("valoplant_id", id);
-
-        if (selError) throw selError;
-
-        const old = (existing || []).map(x => x.lineup_id);
-
-        const toAdd = ids.filter(x => !old.includes(x));
-        const toRemove = old.filter(x => !ids.includes(x));
-
-        if (toAdd.length) {
-
-            const { error } = await db
+            const ids = [...checkedLineups];
+            const { data: existing, error: selError } = await db
                 .from("valoplant_lineups")
-                .insert(
-                    toAdd.map(lineup_id => ({
-                        valoplant_id: id,
-                        lineup_id
-                    }))
+                .select("lineup_id")
+                .eq("valoplant_id", id);
+
+            if (selError) throw selError;
+
+            const old = (existing || []).map(x => x.lineup_id);
+            const toAdd = ids.filter(x => !old.includes(x));
+            const toRemove = old.filter(x => !ids.includes(x));
+
+            if (toAdd.length) {
+                const { error } = await db.from("valoplant_lineups").insert(
+                    toAdd.map(lineup_id => ({ valoplant_id: id, lineup_id }))
                 );
+                if (error) throw error;
+            }
 
-            if (error) throw error;
+            if (toRemove.length) {
+                const { error } = await db.from("valoplant_lineups").delete().eq("valoplant_id", id).in("lineup_id", toRemove);
+                if (error) throw error;
+            }
 
+            alert(wasEditing ? "Stratégie modifiée." : "Stratégie créée.");
+            resetForm();
+            await loadStrategies();
+
+        } catch (err) {
+            console.error(err);
+            alert("Erreur : " + err.message);
+        } finally {
+            btn.disabled = false;
         }
-
-        if (toRemove.length) {
-
-            const { error } = await db
-                .from("valoplant_lineups")
-                .delete()
-                .eq("valoplant_id", id)
-                .in("lineup_id", toRemove);
-
-            if (error) throw error;
-
-        }
-
-        alert(
-            wasEditing
-                ? "Stratégie modifiée."
-                : "Stratégie créée."
-        );
-
-        resetForm();
-
-        await loadStrategies();
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Erreur : " + err.message);
-
-    } finally {
-
-        btn.disabled = false;
-
-    }
-
-});
-
-// SUPPRIMER UNE STRATÉGIE (base d'abord, fichiers ensuite)
+    });
+}
 
 async function deleteStrategy(s) {
-
-    if (!confirm("Supprimer « " + s.title + " » ?")) {
-        return;
-    }
+    if (!confirm("Supprimer « " + s.title + " » ?")) return;
 
     try {
-
-        const { error } = await db
-            .from("valoplants")
-            .delete()
-            .eq("id", s.id);
-
+        const { error } = await db.from("valoplants").delete().eq("id", s.id);
         if (error) throw error;
 
         for (const x of s.images) {
@@ -734,19 +494,12 @@ async function deleteStrategy(s) {
         }
 
         await loadStrategies();
-
     } catch (e) {
-
         alert("Erreur : " + e.message);
-
     }
-
 }
 
-// DÉTAIL D'UNE STRATÉGIE
-
 function detail(s) {
-
     const overlay = document.createElement("div");
     overlay.className = "vp-modal";
 
@@ -767,26 +520,19 @@ function detail(s) {
     tag.textContent = s.category;
 
     const desc = document.createElement("p");
-    desc.textContent =
-        s.description || "Aucune description.";
+    desc.textContent = s.description || "Aucune description.";
 
     const comp = document.createElement("p");
-
-    comp.textContent = s.agents?.length
-        ? "Composition : " + s.agents.join(", ")
-        : "Composition non renseignée.";
+    comp.textContent = s.agents?.length ? "Composition : " + s.agents.join(", ") : "Composition non renseignée.";
 
     const imgs = document.createElement("div");
     imgs.className = "vp-modal-images";
 
     s.images.forEach(x => {
-
         const im = document.createElement("img");
         im.src = x.image_url;
         im.onclick = () => zoom(x.image_url);
-
         imgs.append(im);
-
     });
 
     const lh = document.createElement("h3");
@@ -795,59 +541,44 @@ function detail(s) {
     const lg = document.createElement("div");
     lg.className = "vp-modal-lineups";
 
-    const linked = lineups.filter(l =>
-        s.lineupIds.includes(l.id)
-    );
+    const linked = lineups.filter(l => s.lineupIds.includes(l.id));
 
     if (!linked.length) {
         lg.textContent = "Aucune lineup associée.";
     }
 
     linked.forEach(l => {
-
         const a = document.createElement("article");
-
         const t = document.createElement("strong");
         t.textContent = l.agent + " — " + l.title;
-
         a.append(t);
 
         if (l.description) {
-
             const p = document.createElement("p");
             p.textContent = l.description;
             a.append(p);
-
         }
 
         if (l.image_url) {
-
             const im = document.createElement("img");
             im.src = l.image_url;
             im.onclick = () => zoom(l.image_url);
-
             a.append(im);
-
         }
 
         if (l.video_url) {
-
             const v = document.createElement("video");
             v.src = l.video_url;
             v.controls = true;
-
             a.append(v);
-
         }
 
         lg.append(a);
-
     });
 
     panel.append(close, h, tag, desc, comp, imgs, lh, lg);
 
     const link = document.createElement("a");
-
     link.className = "vp-external";
     link.href = "https://valoplant.gg/";
     link.target = "_blank";
@@ -855,7 +586,6 @@ function detail(s) {
     link.textContent = "OUVRIR SUR VALOPLANT.GG ↗";
 
     panel.append(link);
-
     overlay.append(panel);
 
     overlay.onclick = e => {
@@ -863,134 +593,103 @@ function detail(s) {
     };
 
     document.body.append(overlay);
-
 }
 
-// AGRANDIR UNE IMAGE
-
 function zoom(src) {
-
     const v = document.createElement("div");
     v.className = "image-viewer";
-
     const i = document.createElement("img");
     i.src = src;
 
     v.append(i);
     v.onclick = () => v.remove();
-
     document.body.append(v);
-
 }
 
-// FILTRES
+const catFilters = $("vpCategoryFilters");
+if (catFilters) {
+    catFilters.onclick = e => {
+        const b = e.target.closest("button[data-category]");
+        if (!b) return;
 
-$("vpCategoryFilters").onclick = e => {
+        filter = b.dataset.category;
+        document.querySelectorAll("#vpCategoryFilters button").forEach(x => {
+            x.classList.toggle("active", x === b);
+        });
 
-    const b = e.target.closest("button[data-category]");
+        renderStrategies();
+    };
+}
 
-    if (!b) return;
+const vpImagesInput = $("vpImages");
+if (vpImagesInput) {
+    vpImagesInput.onchange = () => {
+        const root = $("vpFileNames");
+        if (!root) return;
+        root.innerHTML = "";
 
-    filter = b.dataset.category;
+        [...vpImagesInput.files].forEach(file => {
+            const box = document.createElement("div");
+            box.className = "vp-new-image";
 
-    document.querySelectorAll(
-        "#vpCategoryFilters button"
-    ).forEach(x => {
-        x.classList.toggle("active", x === b);
+            const img = document.createElement("img");
+            const objectUrl = URL.createObjectURL(file);
+            img.src = objectUrl;
+            img.alt = file.name;
+            img.onload = () => URL.revokeObjectURL(objectUrl);
+
+            const name = document.createElement("span");
+            name.textContent = file.name;
+
+            box.append(img, name);
+            root.append(box);
+        });
+    };
+}
+
+const cancelBtn = $("vpCancel");
+if (cancelBtn) cancelBtn.onclick = resetForm;
+
+if (login) {
+    login.addEventListener("submit", async e => {
+        e.preventDefault();
+        $("vpAuthStatus").textContent = "Connexion...";
+
+        const { error } = await db.auth.signInWithPassword({
+            email: $("vpEmail").value.trim(),
+            password: $("vpPassword").value
+        });
+
+        if (error) {
+            $("vpAuthStatus").textContent = "Connexion impossible : " + error.message;
+        }
     });
+}
 
-    renderStrategies();
-
-};
-
-// APERÇU DES NOUVELLES IMAGES
-
-$("vpImages").onchange = () => {
-
-    const root = $("vpFileNames");
-    root.innerHTML = "";
-
-    [...$("vpImages").files].forEach(file => {
-
-        const box = document.createElement("div");
-        box.className = "vp-new-image";
-
-        const img = document.createElement("img");
-        const objectUrl = URL.createObjectURL(file);
-        img.src = objectUrl;
-        img.alt = file.name;
-        img.onload = () => URL.revokeObjectURL(objectUrl);
-
-        const name = document.createElement("span");
-        name.textContent = file.name;
-
-        box.append(img, name);
-        root.append(box);
-
-    });
-
-};
-
-// ANNULER UNE MODIFICATION
-
-$("vpCancel").onclick = resetForm;
-
-// CONNEXION ADMIN
-
-login.addEventListener("submit", async e => {
-
-    e.preventDefault();
-
-    $("vpAuthStatus").textContent = "Connexion...";
-
-    const { error } = await db.auth.signInWithPassword({
-
-        email: $("vpEmail").value.trim(),
-
-        password: $("vpPassword").value
-
-    });
-
-    if (error) {
-        $("vpAuthStatus").textContent =
-            "Connexion impossible : " + error.message;
-    }
-
-});
-
-// DÉCONNEXION
-
-$("vpLogout").onclick = async () => {
-
-    const { error } = await db.auth.signOut();
-
-    if (error) alert(error.message);
-
-};
-
-// VÉRIFIER LES DROITS ADMIN
+const logoutBtn = $("vpLogout");
+if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+        const { error } = await db.auth.signOut();
+        if (error) alert(error.message);
+    };
+}
 
 async function checkAdmin(session) {
-
     const user = session?.user;
-
     admin = false;
 
     if (user) {
-
         const { data, error } = await db.rpc("is_admin");
-
         if (error) {
             console.error(error);
         } else {
             admin = data === true;
         }
-
     }
 
-    login.hidden = !!user;
-    $("vpLogout").hidden = !user;
-    editor.hidden = !admin;
+    if (login) login.hidden = !!user;
+    if (logoutBtn) logoutBtn.hidden = !user;
+    if (editor) editor.hidden = !admin;
 
     $("vpAuthStatus").textContent = !user
         ? "Connecte-toi pour gérer les stratégies."
@@ -999,22 +698,13 @@ async function checkAdmin(session) {
             : "Compte connecté : accès administrateur non autorisé.";
 
     renderStrategies();
-
 }
 
-// SUIVI DE LA SESSION
-
 db.auth.onAuthStateChange((event, session) => {
-
-    if (
-        ["INITIAL_SESSION", "SIGNED_IN", "SIGNED_OUT", "TOKEN_REFRESHED"].includes(event)
-    ) {
+    if (["INITIAL_SESSION", "SIGNED_IN", "SIGNED_OUT", "TOKEN_REFRESHED"].includes(event)) {
         setTimeout(() => checkAdmin(session), 0);
     }
-
 });
-
-$("vpAdminPanel").hidden = false;
 
 init();
 
