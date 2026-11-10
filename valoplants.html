@@ -38,99 +38,85 @@
         </div>
 
         <div id="vpCategoryFilters" class="category-filters">
-            <button class="category-filter active" data-category="Toutes">TOUTES</button>
-            <button class="category-filter" data-category="ATTAQUE">ATTAQUE</button>
-            <button class="category-filter" data-category="DÉFENSE">DÉFENSE</button>
-            <button class="category-filter" data-category="RETAKE">RETAKE</button>
-            <button class="category-filter" data-category="PUSH DÉFENSE">PUSH DÉFENSE</button>
+            <button class="category-filter active" data-category="Toutes" type="button">TOUTES</button>
+            <button class="category-filter" data-category="ATTAQUE" type="button">ATTAQUE</button>
+            <button class="category-filter" data-category="DÉFENSE" type="button">DÉFENSE</button>
+            <button class="category-filter" data-category="RETAKE" type="button">RETAKE</button>
+            <button class="category-filter" data-category="PUSH DÉFENSE" type="button">PUSH DÉFENSE</button>
         </div>
 
         <div id="vpStrategyGrid" class="vp-strategy-grid"></div>
     </section>
 
-    <section id="vpAdminPanel" class="add-section" hidden>
-    <div class="section-heading">
-        <h2>ESPACE ADMINISTRATEUR</h2>
-    </div>
-
-    <p id="vpAuthStatus">Connecte-toi pour gérer les stratégies.</p>
-
-    <form id="vpLoginForm">
-        <input
-            type="email"
-            id="vpEmail"
-            placeholder="Adresse e-mail"
-            required
-        >
-
-        <input
-            type="password"
-            id="vpPassword"
-            placeholder="Mot de passe"
-            required
-        >
-
-        <button type="submit">SE CONNECTER</button>
-    </form>
-
-    <button type="button" id="vpLogout" hidden>
-        SE DÉCONNECTER
-    </button>
-
-    <div id="vpEditor" hidden style="margin-top: 30px;">
+    <section id="vpAdminPanel" class="add-section">
         <div class="section-heading">
-            <h2 id="vpFormHeading">CRÉER UNE STRATÉGIE</h2>
+            <h2>ESPACE ADMINISTRATEUR</h2>
         </div>
 
-        <form id="vpForm">
+        <p id="vpAuthStatus">Vérification de la session...</p>
 
-            <label for="vpTitle">TITRE</label>
-            <input id="vpTitle" type="text" required maxlength="120" placeholder="Ex : Exécution rapide sur A">
-
-            <label for="vpDescription">DESCRIPTION</label>
-            <textarea id="vpDescription" rows="4" placeholder="Explique la stratégie..."></textarea>
-
-            <label for="vpCategory">CATÉGORIE</label>
-            <select id="vpCategory">
-                <option>ATTAQUE</option>
-                <option>DÉFENSE</option>
-                <option>RETAKE</option>
-                <option>PUSH DÉFENSE</option>
-            </select>
-
-            <p class="vp-help">
-                Le bouton ValoPlant renverra automatiquement vers
-                <a href="https://valoplant.gg/" target="_blank" rel="noopener noreferrer">
-                    ValoPlant.gg
-                </a>.
-            </p>
-
-            <label>COMPOSITION D'AGENTS (FACULTATIF)</label>
-            <div id="vpAgents" class="vp-picker">Chargement...</div>
-
-            <label for="vpImages">IMAGES (PLUSIEURS POSSIBLES)</label>
-            <input id="vpImages" type="file" accept="image/*" multiple>
-            <div id="vpFileNames" class="vp-new-images"></div>
-            <div id="vpOldImages" class="vp-old-images"></div>
-
-            <label>LINEUPS À ASSOCIER (FACULTATIF)</label>
-            <p class="vp-help">
-                Choisis des agents pour filtrer les lineups.
-                Sans agent sélectionné, toutes les lineups de cette map sont proposées.
-            </p>
-            <div id="vpLineups" class="vp-picker"></div>
-
-            <button id="vpSave" class="validate-button" type="submit">
-                ENREGISTRER LA STRATÉGIE →
-            </button>
-
-            <button id="vpCancel" class="edit-button" type="button" hidden>
-                ANNULER
-            </button>
-
+        <form id="vpLoginForm">
+            <input type="email" id="vpEmail" placeholder="Adresse e-mail" required>
+            <input type="password" id="vpPassword" placeholder="Mot de passe" required>
+            <button type="submit">SE CONNECTER</button>
         </form>
-    </div>
-</section>
+
+        <button type="button" id="vpLogout" hidden>
+            SE DÉCONNECTER
+        </button>
+
+        <div id="vpEditor" hidden style="margin-top: 30px;">
+            <div class="section-heading">
+                <h2 id="vpFormHeading">CRÉER UNE STRATÉGIE</h2>
+            </div>
+
+            <form id="vpForm">
+                <label for="vpTitle">TITRE</label>
+                <input id="vpTitle" type="text" required maxlength="120" placeholder="Ex : Exécution rapide sur A">
+
+                <label for="vpDescription">DESCRIPTION</label>
+                <textarea id="vpDescription" rows="4" placeholder="Explique la stratégie..."></textarea>
+
+                <label for="vpCategory">CATÉGORIE</label>
+                <select id="vpCategory">
+                    <option>ATTAQUE</option>
+                    <option>DÉFENSE</option>
+                    <option>RETAKE</option>
+                    <option>PUSH DÉFENSE</option>
+                </select>
+
+                <p class="vp-help">
+                    Le bouton ValoPlant renverra automatiquement vers
+                    <a href="https://valoplant.gg/" target="_blank" rel="noopener noreferrer">
+                        ValoPlant.gg
+                    </a>.
+                </p>
+
+                <label>COMPOSITION D'AGENTS (FACULTATIF)</label>
+                <div id="vpAgents" class="vp-picker">Chargement...</div>
+
+                <label for="vpImages">IMAGES (PLUSIEURS POSSIBLES)</label>
+                <input id="vpImages" type="file" accept="image/*" multiple>
+                <div id="vpFileNames" class="vp-new-images"></div>
+                <div id="vpOldImages" class="vp-old-images"></div>
+
+                <label>LINEUPS À ASSOCIER (FACULTATIF)</label>
+                <p class="vp-help">
+                    Choisis des agents pour filtrer les lineups.
+                    Sans agent sélectionné, toutes les lineups de cette map sont proposées.
+                </p>
+                <div id="vpLineups" class="vp-picker"></div>
+
+                <button id="vpSave" class="validate-button" type="submit">
+                    ENREGISTRER LA STRATÉGIE →
+                </button>
+
+                <button id="vpCancel" class="edit-button" type="button" hidden>
+                    ANNULER
+                </button>
+            </form>
+        </div>
+    </section>
 
 </main>
 
