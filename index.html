@@ -1,104 +1,134 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VALORANT - Sélection</title>
+    <title>VALORANT - Sélection Agent & Map</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <header class="topbar">
     <a class="brand" href="index.html">V<span>/</span> SELECT</a>
-    <div class="topbar-label">SÉLECTION DE PARTIE</div>
+    <div class="topbar-label">SÉLECTION DU TACTICIEN</div>
 </header>
 
 <main class="container">
 
     <section class="intro">
-        <p class="eyebrow">PROTOCOLE VALORANT</p>
-        <h1>CHOISIS TON <span>AGENT</span></h1>
-        <p class="subtitle">Sélectionne ton agent et ta map.</p>
+        <p class="eyebrow">VALORANT STRATEGY TOOL</p>
+        <h1>CHOISIS TON <span>AGENT</span> ET TA <span>MAP</span></h1>
+        <p class="subtitle">Sélectionne une configuration pour accéder à tes lineups enregistrées.</p>
     </section>
 
-    <section class="vp-home-entry">
-        <a class="validate-button" href="valoplants.html">
-            CONSULTER LES VALOPLANTS →
-        </a>
-    </section>
-
-    <section class="map-section">
-
+    <!-- SECTION 1 : SELECTION DE L'AGENT OU OPTION SPECIALE -->
+    <section class="selection-section">
         <div class="section-heading">
-            <h2>01 <span>/</span> CARTE</h2>
+            <h2>1. SÉLECTIONNER UN <span>AGENT / CATÉGORIE</span></h2>
         </div>
 
-        <div class="map-picker">
-
-            <button class="map-trigger" id="mapTrigger" type="button">
-                <span id="mapTriggerContent">
-                    <span class="map-plus">＋</span>
-                    <span>CHOISIR UNE MAP</span>
-                </span>
-                <span class="chevron">⌄</span>
-            </button>
-
-            <div class="map-menu" id="mapMenu" hidden>
-                <div class="map-menu-title">SÉLECTIONNE UNE CARTE</div>
-                <div class="map-options" id="mapOptions"></div>
+        <div id="agentsGrid" class="agents-grid">
+            <!-- OPTION SPÉCIALE : WALLBANG / TRAVERS -->
+            <div class="agent-card" data-agent="Wallbang" data-name="Wallbang (Travers)">
+                <img src="images/odin.png" alt="Wallbang Odin" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>WALLBANG</h3>
+                    <p>Tirs à forte pénétration (Odin, Guardian...)</p>
+                </div>
             </div>
 
+            <!-- EXEMPLES D'AGENTS (Ajuste les chemins d'images selon tes fichiers) -->
+            <div class="agent-card" data-agent="Brimstone" data-name="Brimstone">
+                <img src="images/brimstone.png" alt="Brimstone" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>BRIMSTONE</h3>
+                    <p>Contrôleur</p>
+                </div>
+            </div>
+
+            <div class="agent-card" data-agent="Sova" data-name="Sova">
+                <img src="images/sova.png" alt="Sova" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>SOVA</h3>
+                    <p>Initiateur</p>
+                </div>
+            </div>
+
+            <div class="agent-card" data-agent="Viper" data-name="Viper">
+                <img src="images/viper.png" alt="Viper" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>VIPER</h3>
+                    <p>Contrôleur</p>
+                </div>
+            </div>
+
+            <div class="agent-card" data-agent="Killjoy" data-name="Killjoy">
+                <img src="images/killjoy.png" alt="Killjoy" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>KILLJOY</h3>
+                    <p>Sentinelle</p>
+                </div>
+            </div>
+
+            <div class="agent-card" data-agent="Fade" data-name="Fade">
+                <img src="images/fade.png" alt="Fade" class="agent-portrait">
+                <div class="agent-info">
+                    <h3>FADE</h3>
+                    <p>Initiateur</p>
+                </div>
+            </div>
         </div>
-
-        <p class="selection-info" id="mapInfo">
-            Aucune map sélectionnée
-        </p>
-
     </section>
 
-    <section class="agents-section">
-
+    <!-- SECTION 2 : SELECTION DE LA MAP -->
+    <section class="selection-section">
         <div class="section-heading">
-            <h2>02 <span>/</span> AGENT</h2>
-            <span class="hint" id="agentCount"></span>
+            <h2>2. SÉLECTIONNER UNE <span>MAP</span></h2>
         </div>
 
-        <div class="role-filters" id="roleFilters">
-            <button class="filter active" data-role="Tous">TOUS</button>
-            <button class="filter" data-role="Duelliste">DUELLISTES</button>
-            <button class="filter" data-role="Initiateur">INITIATEURS</button>
-            <button class="filter" data-role="Contrôleur">CONTRÔLEURS</button>
-            <button class="filter" data-role="Sentinelle">SENTINELLES</button>
+        <div id="mapsGrid" class="maps-grid">
+            <div class="map-card" data-map="Ascent" data-name="Ascent">
+                <div class="map-info">
+                    <h3>ASCENT</h3>
+                </div>
+            </div>
+
+            <div class="map-card" data-map="Bind" data-name="Bind">
+                <div class="map-info">
+                    <h3>BIND</h3>
+                </div>
+            </div>
+
+            <div class="map-card" data-map="Haven" data-name="Haven">
+                <div class="map-info">
+                    <h3>HAVEN</h3>
+                </div>
+            </div>
+
+            <div class="map-card" data-map="Split" data-name="Split">
+                <div class="map-info">
+                    <h3>SPLIT</h3>
+                </div>
+            </div>
+
+            <div class="map-card" data-map="Lotus" data-name="Lotus">
+                <div class="map-info">
+                    <h3>LOTUS</h3>
+                </div>
+            </div>
+
+            <div class="map-card" data-map="Sunset" data-name="Sunset">
+                <div class="map-info">
+                    <h3>SUNSET</h3>
+                </div>
+            </div>
         </div>
-
-        <div class="agent-grid" id="agentGrid">
-            <p>Chargement des agents...</p>
-        </div>
-
-        <p class="selection-info" id="agentInfo">
-            Aucun agent sélectionné
-        </p>
-
     </section>
 
-    <div class="validate-wrap">
-
-        <p id="validationMessage">
-            Sélectionne un agent et une map.
-        </p>
-
-        <button class="validate-button" id="validateButton" disabled>
-            VOIR LES LINEUPS →
+    <!-- BOUTON DE CONFIRMATION -->
+    <div class="action-container">
+        <button id="confirmSelection" class="validate-button" disabled>
+            AFFICHER LES LINEUPS →
         </button>
-
-    </div>
-
-</main>
-
-<footer>FAN-MADE • NON AFFILIÉ À RIOT GAMES</footer>
-<script src="./maps-config.js"></script>
-<script src="./app.js"></script>
-
-
-</body>
-</html>
