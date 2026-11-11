@@ -64,7 +64,7 @@
             "uuid": "ton-uuid-personnalise-ou-genere",
             "displayName": "Travers",
             "description": "Description de ton agent...",
-            "displayIcon": "LIEN_VERS_TON_ICONE_OU_IMAGE.png",
+            "displayIcon": "https://static.wikia.nocookie.net/valorant/images/5/58/Odin.png/revision/latest/scale-to-width-down/268?cb=20240510124729&path-prefix=fr",
             "fullPortrait": "LIEN_VERS_LE_PORTRAIT_EN_PIED.png",
             "isPlayableCharacter": true,
             "role": {
